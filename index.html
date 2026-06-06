@@ -31,7 +31,8 @@
     
     <!-- 頁首 Banner 區塊 -->
     <div class="h-[250px] w-full relative bg-[#0077b6]">
-      <img src="image_ff7048" alt="Okinawa Summer" class="w-full h-full object-cover onerror-fallback" onerror="this.style.display='none'">
+      <!-- 已經在此處更新為您的圖片檔案名稱 image_ff7048.jpeg -->
+      <img src="image_ff7048.jpeg" alt="Okinawa Summer" class="w-full h-full object-cover onerror-fallback" onerror="this.style.display='none'">
       <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
       
       <div class="absolute left-5 top-8 text-white z-10">
@@ -162,9 +163,8 @@
         </button>
       </div>
 
-      <!-- 2. 資訊、3.購物、4.花費保留與先前完全一致的代碼設計 -->
+      <!-- 2. 資訊分頁 -->
       <div v-if="activeTab === 'info'" class="space-y-4">
-        <!-- 匯率與航班資訊 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-calculator text-amber-500 mr-2"></i>日幣匯率即時試算</h3>
           <div class="grid grid-cols-2 gap-3 items-center">
@@ -209,6 +209,7 @@
         </div>
       </div>
 
+      <!-- 3. 購物清單分頁 -->
       <div v-if="activeTab === 'shopping'">
         <div class="grid grid-cols-2 gap-3">
           <div v-for="shop in shoppingList" :key="shop.id" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-2 flex flex-col justify-between">
@@ -224,6 +225,7 @@
         <button @click="openAddModal('shopping')" class="fixed right-6 bottom-6 w-14 h-14 bg-[#0077b6] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#00b4d8] active:scale-95 transition-all z-40"><i class="fa-solid fa-plus text-xl"></i></button>
       </div>
 
+      <!-- 4. 花費分頁 -->
       <div v-if="activeTab === 'expenses'" class="space-y-4">
         <div class="bg-gradient-to-br from-[#0077b6] to-[#00b4d8] rounded-2xl p-5 text-white shadow-md relative overflow-hidden">
           <div class="absolute right-0 bottom-0 translate-x-4 translate-y-4 opacity-10 text-9xl font-bold">¥</div>
@@ -263,7 +265,6 @@
           <button @click="showModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
-        <!-- 彈窗子表單 A: 行程 -->
         <div v-if="modalTarget === 'itinerary'" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-slate-500 mb-1">分類標籤</label>
@@ -304,7 +305,6 @@
           </div>
         </div>
 
-        <!-- 彈窗子表單 B & C 沿用上一版 -->
         <div v-if="modalTarget === 'shopping'" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-slate-500 mb-1">商品名稱</label>
@@ -317,7 +317,6 @@
         </div>
 
         <div v-if="modalTarget === 'expenses'" class="space-y-4">
-          <!-- 花費記帳表單欄位 -->
           <div class="grid grid-cols-2 gap-3">
             <div><label class="block text-xs font-bold text-slate-500 mb-1">消費類別</label><select v-model="form.expenses.category" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option>飲食</option><option>交通</option><option>住宿</option><option>門票</option><option>購物</option><option>其他</option></select></div>
             <div><label class="block text-xs font-bold text-slate-500 mb-1">日期</label><input type="date" v-model="form.expenses.date" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
@@ -375,7 +374,6 @@
           expenses: { category: '飲食', name: '', date: '', amount: 0, payMethod: '現金', notes: '' }
         });
 
-        // ⭐【重點更新】直接匯入完整的5天4夜資料
         const seedData = [
           // Day 1
           { id: 'd1-1', dayIdx: 0, category: '航班', name: '抵達沖繩 (那霸機場)', hours: '12:30', flightNum: 'IT288', notes: '在售票機購買單軌電車一日券（1000日圓）。從國際線2樓走天橋長廊連接至單軌電車站。', transitType: '大眾運輸', transitTime: 80 },
@@ -418,10 +416,9 @@
         ];
 
         const loadSavedData = () => {
-          // 變更鍵值名稱以強制載入這份新資料覆蓋舊的
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v1');
-          const savedShopping = localStorage.getItem('ok_shopping_v1');
-          const savedExpenses = localStorage.getItem('ok_expenses_v1');
+          const savedItinerary = localStorage.getItem('ok_itinerary_final_v2');
+          const savedShopping = localStorage.getItem('ok_shopping_v2');
+          const savedExpenses = localStorage.getItem('ok_expenses_v2');
 
           if (savedItinerary) {
             itineraries.value = JSON.parse(savedItinerary);
@@ -433,9 +430,9 @@
         };
 
         watch([itineraries, shoppingList, expenses], () => {
-          localStorage.setItem('ok_itinerary_final_v1', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v1', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v1', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_itinerary_final_v2', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v2', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v2', JSON.stringify(expenses.value));
         }, { deep: true });
 
         const currentDayItinerary = computed(() => {
