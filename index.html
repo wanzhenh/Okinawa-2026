@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>沖繩盛夏・五天四夜慢活之旅</title>
+  <title>沖繩盛夏・慢活之旅</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts 日系極簡美感字型 -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   
   <style>
@@ -25,6 +29,7 @@
 
   <div id="app" class="w-full max-w-md bg-white min-h-screen shadow-2xl flex flex-col relative overflow-x-hidden pb-12">
     
+    <!-- 頁首 Banner 區塊 -->
     <div class="h-[250px] w-full relative bg-[#0077b6]">
       <img src="image_ff7048.jpeg" alt="Okinawa Summer" class="w-full h-full object-cover onerror-fallback" onerror="this.style.display='none'">
       <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
@@ -42,8 +47,10 @@
       </div>
     </div>
 
+    <!-- 主內容區域 -->
     <main class="-mt-8 rounded-t-[32px] bg-[#f0f7f9] flex-1 z-20 px-4 pt-6 relative pb-24">
       
+      <!-- 1. 每日行程表分頁 -->
       <div v-if="activeTab === 'itinerary'">
         <div class="flex space-x-3 overflow-x-auto pb-4 no-scrollbar scroll-smooth snap-x">
           <button v-for="(day, index) in days" :key="index" @click="selectedDayIdx = index" :class="selectedDayIdx === index ? 'bg-[#0077b6] text-white shadow-md transform scale-105' : 'bg-white text-slate-700'" class="flex-shrink-0 w-[64px] py-2.5 rounded-2xl flex flex-col items-center justify-center snap-center transition-all duration-200 border border-slate-100">
@@ -117,6 +124,7 @@
         <button @click="openAddModal('itinerary')" class="fixed right-6 bottom-6 w-14 h-14 bg-[#0077b6] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#00b4d8] active:scale-95 transition-all z-40"><i class="fa-solid fa-plus text-xl"></i></button>
       </div>
 
+      <!-- 2. 資訊分頁 -->
       <div v-if="activeTab === 'info'" class="space-y-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-calculator text-amber-500 mr-2"></i>日幣匯率即時試算</h3>
@@ -148,6 +156,7 @@
         </div>
       </div>
 
+      <!-- 3. 購物清單分頁 -->
       <div v-if="activeTab === 'shopping'">
         <div class="grid grid-cols-2 gap-3">
           <div v-for="shop in shoppingList" :key="shop.id" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-2 flex flex-col justify-between">
@@ -163,8 +172,10 @@
         <button @click="openAddModal('shopping')" class="fixed right-6 bottom-6 w-14 h-14 bg-[#0077b6] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#00b4d8] active:scale-95 transition-all z-40"><i class="fa-solid fa-plus text-xl"></i></button>
       </div>
 
+      <!-- 4. 旅遊記帳與三人分帳分頁 -->
       <div v-if="activeTab === 'expenses'" class="space-y-4">
         
+        <!-- 總支出統計看板 -->
         <div class="bg-gradient-to-br from-[#0077b6] to-[#00b4d8] text-white rounded-2xl p-5 shadow-md relative">
           <div class="flex justify-between items-start">
             <div class="text-center w-full mt-2">
@@ -190,14 +201,13 @@
           </div>
         </div>
 
+        <!-- 快速輸入表單 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <p class="text-xs font-bold text-slate-500 mb-3">新增消費明細</p>
-          
           <div class="space-y-3">
             <div>
               <input type="text" v-model="quickExpense.name" placeholder="項目說明 (例如：暖暮拉麵)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#0077b6]">
             </div>
-
             <div class="grid grid-cols-2 gap-2">
               <div>
                 <label class="block text-[10px] text-slate-400 mb-1">誰先代墊？</label>
@@ -205,7 +215,6 @@
                   <option v-for="p in payersList" :key="p" :value="p">{{ p }}</option>
                 </select>
               </div>
-
               <div>
                 <label class="block text-[10px] text-slate-400 mb-1">輸入幣別</label>
                 <select v-model="quickExpense.currency" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-bold text-[#0077b6]">
@@ -214,7 +223,6 @@
                 </select>
               </div>
             </div>
-
             <div class="flex items-center space-x-2 pt-1">
               <div class="relative flex-1">
                 <span class="absolute left-3 top-2 text-sm font-bold text-slate-400">
@@ -222,16 +230,18 @@
                 </span>
                 <input type="number" v-model="quickExpense.amount" placeholder="請輸入金額" class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-8 pr-3 py-2 text-sm outline-none font-bold text-slate-800 focus:border-[#0077b6]">
               </div>
-
-              <button @click="addQuickExpense" class="w-12 h-9 bg-[#0077b6] text-white rounded-xl flex items-center justify-center hover:bg-[#00b4d8] shadow-md active:scale-95 transition-transform flex-shrink-0">
-                <i class="fa-solid fa-plus"></i>
+              
+              <!-- 改為觸發確認方框的按鈕 -->
+              <button @click="previewQuickExpense" class="w-12 h-9 bg-[#0077b6] text-white rounded-xl flex items-center justify-center hover:bg-[#00b4d8] shadow-md active:scale-95 transition-transform flex-shrink-0">
+                <i class="fa-solid fa-check"></i>
               </button>
             </div>
           </div>
         </div>
 
+        <!-- 歷史紀錄列表 (包含編輯與刪除按鈕) -->
         <div class="space-y-2 mt-4">
-          <p class="text-xs font-bold text-slate-400 px-1">消費歷史紀錄</p>
+          <p class="text-xs font-bold text-slate-400 px-1">消費歷史紀錄 (可編輯)</p>
           <div v-for="exp in expenses" :key="exp.id" class="bg-white rounded-xl p-3 shadow-sm border border-slate-50 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center text-xs font-bold text-[#0077b6]">
@@ -241,20 +251,48 @@
                 <h4 class="text-sm font-bold text-slate-800">{{ exp.name }}</h4>
                 <p class="text-[10px] text-slate-400 font-light">
                   {{ exp.date }} · {{ exp.payer }}墊付 
-                  <span v-if="exp.origCurrency === 'JPY'">(原始輸入: JPY ¥{{ exp.origAmount }})</span>
+                  <span v-if="exp.origCurrency === 'JPY'">(輸入: ¥{{ exp.origAmount }})</span>
                 </p>
               </div>
             </div>
             <div class="flex items-center space-x-3">
               <span class="text-sm font-bold text-slate-700">NT$ {{ Math.round(exp.amountTwd).toLocaleString() }}</span>
-              <button @click="deleteExpense(exp.id)" class="text-slate-300 hover:text-rose-500 text-xs"><i class="fa-solid fa-xmark"></i></button>
+              <!-- 編輯按鈕 -->
+              <button @click="openEditExpenseModal(exp)" class="text-slate-300 hover:text-[#0077b6] text-xs transition-colors"><i class="fa-solid fa-pen"></i></button>
+              <!-- 刪除按鈕 -->
+              <button @click="deleteExpense(exp.id)" class="text-slate-300 hover:text-rose-500 text-xs transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
           </div>
+          <div v-if="expenses.length === 0" class="text-center py-6 text-slate-300 text-xs font-light">目前無任何消費明細</div>
         </div>
 
       </div>
     </main>
 
+    <!-- 彈出視窗 1：新增記帳明細時的「確認方框」防呆機制 -->
+    <div v-if="showExpenseConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-5">
+      <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl transform transition-transform duration-300">
+        <div class="text-center mb-4">
+          <div class="w-12 h-12 rounded-full bg-sky-50 text-[#0077b6] flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-file-invoice-dollar text-xl"></i></div>
+          <h3 class="font-bold text-lg text-slate-800">確認記帳明細</h3>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-4 space-y-3 text-sm border border-slate-100">
+          <div class="flex justify-between"><span class="text-slate-500">消費項目</span><span class="font-bold text-slate-800">{{ quickExpense.name }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">墊付人員</span><span class="font-bold text-[#0077b6]">{{ quickExpense.payer }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">輸入金額</span><span class="font-bold text-slate-800">{{ quickExpense.currency === 'JPY' ? '¥ 日幣' : '$ 台幣' }} {{ Number(quickExpense.amount).toLocaleString() }}</span></div>
+          <div class="pt-3 mt-3 border-t border-dashed border-slate-200 flex justify-between items-center">
+            <span class="text-slate-500 text-xs">系統換算總額</span>
+            <span class="font-black text-lg text-emerald-600">NT$ {{ Math.round(quickExpense.currency === 'JPY' ? quickExpense.amount * fxRateGlobal : quickExpense.amount).toLocaleString() }}</span>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2 mt-5">
+          <button @click="showExpenseConfirm = false" class="w-1/2 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-200 transition-colors">返回修改</button>
+          <button @click="confirmAddExpense" class="w-1/2 py-2.5 bg-[#0077b6] text-white rounded-xl text-sm font-bold shadow-md hover:bg-[#00b4d8] transition-colors">確認寫入</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 彈出視窗 2：通用編輯 Modal (行程表、購物清單、歷史記帳編輯共用) -->
     <div v-if="showModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="bg-white w-full max-w-md rounded-t-[28px] sm:rounded-2xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto transform transition-transform duration-300">
         <div class="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
@@ -262,6 +300,7 @@
           <button @click="showModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
+        <!-- 行程表編輯 -->
         <div v-if="modalTarget === 'itinerary'" class="space-y-4">
           <div><label class="block text-xs font-bold text-slate-500 mb-1">分類標籤</label><select v-model="form.itinerary.category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"><option>景點</option><option>住宿</option><option>美食</option><option>購物</option><option>航班</option><option>交通</option><option>其他</option></select></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">地標/活動名稱</label><input type="text" v-model="form.itinerary.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></div>
@@ -278,14 +317,44 @@
           <div><label class="block text-xs font-bold text-slate-500 mb-1">特色與獨家備註</label><textarea v-model="form.itinerary.notes" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></textarea></div>
         </div>
 
+        <!-- 購物清單編輯 -->
         <div v-if="modalTarget === 'shopping'" class="space-y-4">
           <div><label class="block text-xs font-bold text-slate-500 mb-1">商品名稱</label><input type="text" v-model="form.shopping.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">上傳商品照片</label><input type="file" accept="image/*" @change="handleImageUpload" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#0077b6]"></div>
         </div>
 
+        <!-- 歷史記帳明細編輯 -->
+        <div v-if="modalTarget === 'expense_edit'" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">項目名稱</label>
+            <input type="text" v-model="form.expenseEdit.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">墊付人員</label>
+              <select v-model="form.expenseEdit.payer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                <option v-for="p in payersList" :key="p" :value="p">{{ p }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">原始輸入幣別</label>
+              <select v-model="form.expenseEdit.currency" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                <option value="JPY">日幣 (¥)</option>
+                <option value="TWD">台幣 ($)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">輸入金額</label>
+            <input type="number" v-model="form.expenseEdit.amount" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-800">
+          </div>
+          <p class="text-[10px] text-slate-400 mt-2"><i class="fa-solid fa-circle-info mr-1"></i>儲存後，系統將依據目前畫面設定的匯率，重新換算台幣總額。</p>
+        </div>
+
+        <!-- 彈窗底端操作按鈕區 (支援共用刪除邏輯) -->
         <div class="flex justify-end space-x-2 mt-6 pt-4 border-t border-slate-100">
           <button v-if="isEditing && !confirmDelete" @click="confirmDelete = true" class="mr-auto px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-medium"><i class="fa-solid fa-trash-can mr-1"></i>刪除</button>
-          <button v-if="confirmDelete" @click="deleteItineraryItem" class="mr-auto px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold">確認刪除嗎？</button>
+          <button v-if="confirmDelete" @click="deleteModalItem" class="mr-auto px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold">確認刪除嗎？</button>
           <button @click="showModal = false" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-medium">取消</button>
           <button @click="submitForm" class="px-5 py-2 bg-[#0077b6] text-white rounded-xl text-xs font-bold hover:bg-[#00b4d8]">儲存確認</button>
         </div>
@@ -301,7 +370,11 @@
       setup() {
         const activeTab = ref('itinerary');
         const selectedDayIdx = ref(0);
+        
+        // 彈窗控制變數
         const showModal = ref(false);
+        const showExpenseConfirm = ref(false); // 控制防呆確認方框
+        
         const modalTitle = ref('');
         const modalTarget = ref('');
         const isEditing = ref(false);
@@ -316,22 +389,22 @@
           { week: 'Thu', date: '16', fullDate: '2026-07-16' }
         ];
 
-        const fxCalc = ref({ jpy: 1000, twd: 215 }); // 資訊頁面專用
-        const fxRateGlobal = ref(0.215); // 記帳全域匯率核心參數
-        
-        // 分帳人物角色清單設定
+        const fxCalc = ref({ jpy: 1000, twd: 215 });
+        const fxRateGlobal = ref(0.215); 
         const payersList = ref(['婉禎', '嘉慶', '媽媽']);
 
         const itineraries = ref([]);
         const shoppingList = ref([]);
         const expenses = ref([]);
 
+        // 各分頁表單模型，新增了 expenseEdit 供編輯歷史紀錄使用
         const form = ref({
           itinerary: { category: '景點', name: '', hours: '', ticket: '', flightNum: '', notes: '', transitType: '大眾運輸', transitTime: 15 },
-          shopping: { name: '', img: '' }
+          shopping: { name: '', img: '' },
+          expenseEdit: { name: '', payer: '', currency: 'JPY', amount: '' }
         });
 
-        // 快速記帳初始化配置模型
+        // 快速記帳區輸入綁定
         const quickExpense = ref({ name: '', amount: '', payer: '婉禎', currency: 'JPY' });
 
         const seedData = [
@@ -372,29 +445,26 @@
         ];
 
         const loadSavedData = () => {
-          // 更新金鑰以載入全新三人雙幣分帳架構
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v4');
-          const savedShopping = localStorage.getItem('ok_shopping_v4');
-          const savedExpenses = localStorage.getItem('ok_expenses_v4');
+          const savedItinerary = localStorage.getItem('ok_itinerary_final_v5');
+          const savedShopping = localStorage.getItem('ok_shopping_v5');
+          const savedExpenses = localStorage.getItem('ok_expenses_v5');
           if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = seedData;
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
           if (savedExpenses) expenses.value = JSON.parse(savedExpenses);
         };
 
         watch([itineraries, shoppingList, expenses], () => {
-          localStorage.setItem('ok_itinerary_final_v4', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v4', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v4', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_itinerary_final_v5', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v5', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v5', JSON.stringify(expenses.value));
         }, { deep: true });
 
         const currentDayItinerary = computed(() => { return itineraries.value.filter(item => item.dayIdx === selectedDayIdx.value); });
         
-        // 【核心邏輯更新】計算總台幣花費支出
         const totalExpensesTwd = computed(() => {
           return expenses.value.reduce((sum, item) => sum + Number(item.amountTwd || 0), 0);
         });
 
-        // 【核心邏輯更新】計算特定人物代墊的總台幣金額
         const getPayerTotalTwd = (payerName) => {
           return expenses.value.filter(e => e.payer === payerName).reduce((sum, item) => sum + Number(item.amountTwd || 0), 0);
         };
@@ -414,8 +484,25 @@
           else if (target === 'shopping') { modalTitle.value = '新增想買清單'; form.value.shopping = { name: '', img: '' }; }
         };
 
+        // 開啟編輯方塊 (共用歷史紀錄、行程表等)
         const openEditModal = (item) => {
           modalTarget.value = 'itinerary'; isEditing.value = true; editingId.value = item.id; confirmDelete.value = false; modalTitle.value = '編輯行程資訊'; form.value.itinerary = { ...item }; showModal.value = true;
+        };
+
+        // 【新增功能】專為編輯記帳歷史紀錄的彈窗
+        const openEditExpenseModal = (exp) => {
+          modalTarget.value = 'expense_edit'; 
+          isEditing.value = true; 
+          editingId.value = exp.id; 
+          confirmDelete.value = false; 
+          modalTitle.value = '編輯消費紀錄'; 
+          form.value.expenseEdit = {
+            name: exp.name,
+            payer: exp.payer,
+            currency: exp.origCurrency,
+            amount: exp.origAmount
+          };
+          showModal.value = true;
         };
 
         const handleImageUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { form.value.shopping.img = event.target.result; }; reader.readAsDataURL(file); };
@@ -429,22 +516,38 @@
           } else if (target === 'shopping') {
             if (!form.value.shopping.name.trim()) return alert('請輸入商品名稱');
             shoppingList.value.push({ id: Date.now().toString(), ...form.value.shopping });
+          } else if (target === 'expense_edit') {
+            // 【新增功能】儲存歷史記帳編輯
+            if (!form.value.expenseEdit.name.trim() || !form.value.expenseEdit.amount) return alert('請完整填寫項目與金額');
+            const idx = expenses.value.findIndex(e => e.id === editingId.value);
+            if (idx !== -1) {
+              const amt = Number(form.value.expenseEdit.amount);
+              // 依據目前畫面上的匯率重新計算台幣總額
+              const twd = form.value.expenseEdit.currency === 'JPY' ? Math.round(amt * fxRateGlobal.value) : amt;
+              expenses.value[idx].name = form.value.expenseEdit.name;
+              expenses.value[idx].payer = form.value.expenseEdit.payer;
+              expenses.value[idx].origCurrency = form.value.expenseEdit.currency;
+              expenses.value[idx].origAmount = amt;
+              expenses.value[idx].amountTwd = twd;
+            }
           }
           showModal.value = false;
         };
 
-        // 【全新記帳邏輯更新】支援雙幣別直接輸入，並全面換算儲存為台幣計價
-        const addQuickExpense = () => {
-          if (!quickExpense.value.name.trim() || !quickExpense.value.amount) return alert('請填寫消費項目名稱與金額');
-          
+        // 【新增防呆功能】呼叫出確認方框
+        const previewQuickExpense = () => {
+          if (!quickExpense.value.name.trim() || !quickExpense.value.amount) return alert('請先填寫消費項目名稱與金額喔！');
+          showExpenseConfirm.value = true; // 彈出確認視窗
+        };
+
+        // 【更新邏輯】確認方框按下後，正式寫入資料庫
+        const confirmAddExpense = () => {
           let calculatedTwd = 0;
           const enteredAmount = Number(quickExpense.value.amount);
 
           if (quickExpense.value.currency === 'JPY') {
-            // 如果輸入的是日幣，依據目前全域匯率換算成台幣
             calculatedTwd = Math.round(enteredAmount * fxRateGlobal.value);
           } else {
-            // 如果輸入的是台幣，直接採用
             calculatedTwd = enteredAmount;
           }
 
@@ -455,12 +558,23 @@
             origCurrency: quickExpense.value.currency,
             origAmount: enteredAmount,
             amountTwd: calculatedTwd,
-            date: days[selectedDayIdx.value].fullDate // 自動鎖定當前點選的旅程日期
+            date: days[selectedDayIdx.value].fullDate 
           });
 
-          // 重新初始化輸入欄位
+          // 清空欄位並關閉方框
           quickExpense.value.name = '';
           quickExpense.value.amount = '';
+          showExpenseConfirm.value = false;
+        };
+
+        // 【共用刪除邏輯更新】讓 Modal 中的刪除按鈕也能刪除記帳歷史
+        const deleteModalItem = () => {
+          if (modalTarget.value === 'itinerary') {
+            itineraries.value = itineraries.value.filter(i => i.id !== editingId.value);
+          } else if (modalTarget.value === 'expense_edit') {
+            expenses.value = expenses.value.filter(e => e.id !== editingId.value);
+          }
+          showModal.value = false;
         };
 
         const moveItem = (index, direction) => {
@@ -469,6 +583,7 @@
           const temp = itineraries.value[globalIdx1]; itineraries.value[globalIdx1] = itineraries.value[globalIdx2]; itineraries.value[globalIdx2] = temp;
         };
 
+        // 保留給列表上的快速按鈕使用
         const deleteItineraryItem = () => { itineraries.value = itineraries.value.filter(i => i.id !== editingId.value); showModal.value = false; };
         const deleteShoppingItem = (id) => { shoppingList.value = shoppingList.value.filter(s => s.id !== id); };
         const deleteExpense = (id) => { expenses.value = expenses.value.filter(e => e.id !== id); };
@@ -477,9 +592,9 @@
 
         return {
           activeTab, selectedDayIdx, days, currentDayItinerary, shoppingList, expenses, totalExpensesTwd,
-          showModal, modalTitle, modalTarget, form, isEditing, confirmDelete, fxCalc, fxRateGlobal, payersList, quickExpense,
-          calcToTwd, calcToJpy, openAddModal, openEditModal, handleImageUpload, submitForm, addQuickExpense, getPayerTotalTwd,
-          moveItem, deleteItineraryItem, deleteShoppingItem, deleteExpense,
+          showModal, showExpenseConfirm, modalTitle, modalTarget, form, isEditing, confirmDelete, fxCalc, fxRateGlobal, payersList, quickExpense,
+          calcToTwd, calcToJpy, openAddModal, openEditModal, openEditExpenseModal, handleImageUpload, submitForm, previewQuickExpense, confirmAddExpense, getPayerTotalTwd,
+          moveItem, deleteItineraryItem, deleteModalItem, deleteShoppingItem, deleteExpense,
           getCategoryColor, getCategoryIcon, getCategoryBadgeClass, getTransitIcon
         };
       }
