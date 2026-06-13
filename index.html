@@ -4,9 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>沖繩盛夏・五天四夜慢活之旅</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts 日系極簡美感字型 -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   
   <style>
@@ -25,6 +29,7 @@
 
   <div id="app" class="w-full max-w-md bg-white min-h-screen shadow-2xl flex flex-col relative overflow-x-hidden pb-12">
     
+    <!-- 頁首 Banner 區塊 -->
     <div class="h-[250px] w-full relative bg-[#0077b6]">
       <img src="image_ff7048.jpeg" alt="Okinawa Summer" class="w-full h-full object-cover onerror-fallback" onerror="this.style.display='none'">
       <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
@@ -42,8 +47,10 @@
       </div>
     </div>
 
+    <!-- 主內容區域 -->
     <main class="-mt-8 rounded-t-[32px] bg-[#f0f7f9] flex-1 z-20 px-4 pt-6 relative pb-24">
       
+      <!-- ==================== 1. 每日行程表分頁 ==================== -->
       <div v-if="activeTab === 'itinerary'">
         <div class="flex space-x-3 overflow-x-auto pb-4 no-scrollbar scroll-smooth snap-x">
           <button v-for="(day, index) in days" :key="index" @click="selectedDayIdx = index" :class="selectedDayIdx === index ? 'bg-[#0077b6] text-white shadow-md transform scale-105' : 'bg-white text-slate-700'" class="flex-shrink-0 w-[64px] py-2.5 rounded-2xl flex flex-col items-center justify-center snap-center transition-all duration-200 border border-slate-100">
@@ -66,42 +73,107 @@
           </div>
         </div>
 
-        <div class="space-y-4 relative before:absolute before:top-2 before:bottom-2 before:left-[19px] before:w-0.5 before:bg-sky-200/60">
-          <div v-for="(item, idx) in currentDayItinerary" :key="item.id" class="relative pl-10 group">
-            <div :class="getCategoryColor(item.category)" class="absolute left-0 top-3 w-10 h-10 rounded-full flex items-center justify-center text-white text-xs shadow-md border-4 border-[#f0f7f9] z-10"><i :class="getCategoryIcon(item.category)"></i></div>
+        <div class="space-y-4 pl-4 relative before:absolute before:top-6 before:bottom-0 before:left-[21px] before:w-0.5 before:bg-[#d6d2f3]">
+          <div v-for="(item, idx) in currentDayItinerary" :key="item.id" class="relative pl-6 group">
             
-            <div class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow border border-slate-100 relative">
+            <div class="absolute left-[-2.5px] top-6 w-2 h-2 rounded-full bg-[#8272e2] shadow-[0_0_0_4px_#f0f7f9] z-10"></div>
+            
+            <div v-if="item.category === '航班'" class="bg-gradient-to-br from-indigo-900 to-slate-800 text-indigo-100 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+              <div class="absolute right-[-15px] bottom-[-15px] opacity-10 text-7xl transform -rotate-12"><i class="fa-solid fa-plane"></i></div>
+              <div class="flex justify-between items-center border-b border-indigo-700/50 pb-2 mb-3">
+                <span class="px-2 py-0.5 bg-indigo-500/30 text-indigo-300 rounded text-[10px] uppercase font-bold tracking-widest">{{ item.flightNum || '航班' }}</span>
+                <span class="text-xs text-indigo-300 font-bold">{{ item.hours || '' }}</span>
+              </div>
+              <h3 class="font-bold text-white text-[16px] leading-snug mb-1">{{ item.name }}</h3>
+              <p v-if="item.notes" class="text-xs text-indigo-200/80 font-light leading-relaxed mt-1.5"><i class="fa-solid fa-plane-arrival mr-1"></i>{{ item.notes }}</p>
+              <div class="flex justify-end space-x-3 mt-3 pt-2 border-t border-indigo-700/30 text-[11px] text-indigo-300">
+                <button @click="moveItem(idx, -1)" v-if="idx > 0" class="hover:text-white"><i class="fa-solid fa-arrow-up"></i></button>
+                <button @click="moveItem(idx, 1)" v-if="idx < currentDayItinerary.length - 1" class="hover:text-white"><i class="fa-solid fa-arrow-down"></i></button>
+                <button @click="openEditModal(item)" class="hover:text-white"><i class="fa-solid fa-pen"></i> 編輯</button>
+              </div>
+            </div>
+
+            <div v-else class="bg-white rounded-2xl p-3.5 shadow-sm hover:shadow-md transition-shadow border border-slate-100 relative">
+              <div class="flex items-center justify-between mb-2 pb-2.5 border-b border-slate-50">
+                <div class="flex items-baseline space-x-1.5">
+                  <span class="text-2xl font-black text-slate-800 tracking-tighter leading-none">{{ getStartTimeOnly(item.hours) }}</span>
+                  <span class="text-[11px] text-slate-400 font-bold tracking-widest">{{ getAmPm(item.hours) }}</span>
+                </div>
+                <div class="flex items-center space-x-1.5 bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg">
+                  <i :class="getCategoryIcon(item.category)" class="text-[10px]" :class="getCategoryTextColor(item.category)"></i>
+                  <span class="text-[10px] font-bold text-slate-600">{{ item.category }}</span>
+                </div>
+              </div>
               <div class="flex justify-between items-start">
-                <div class="flex-1 pr-2">
-                  <div class="flex items-center space-x-1.5 flex-wrap">
-                    <span class="text-[10px] px-1.5 py-0.5 rounded-md font-medium mb-1" :class="getCategoryBadgeClass(item.category)">{{ item.category }}</span>
-                    <h3 class="font-bold text-slate-800 text-[15px] leading-tight mb-1">{{ item.name }}</h3>
+                <div class="flex-1 pr-3">
+                  <h3 class="font-bold text-slate-800 text-[16px] leading-snug mb-1">{{ item.name }}</h3>
+                  <div class="text-[12px] text-slate-400 font-medium mb-2.5 flex items-center">
+                    <i class="fa-regular fa-clock mr-1.5 opacity-70"></i> {{ getDurationText(item.hours) }}
                   </div>
-                  <div class="mt-1 space-y-1 text-xs text-slate-500 font-light">
-                    <p v-if="item.hours"><i class="fa-regular fa-clock w-4 text-slate-400"></i>時間: <span class="font-medium text-slate-600">{{ item.hours }}</span></p>
-                    <p v-if="item.ticket"><i class="fa-solid fa-ticket w-4 text-slate-400"></i>門票: {{ item.ticket }}</p>
-                    <p v-if="item.notes" class="mt-1.5 text-slate-600 bg-slate-50 p-2 rounded-lg italic border-l-2 border-[#00b4d8] leading-relaxed text-[11px]"><i class="fa-regular fa-lightbulb mr-1 text-[#00b4d8]"></i>{{ item.notes }}</p>
+                  <div class="space-y-1.5">
+                    <p v-if="item.ticket" class="text-[11px] text-orange-500 font-medium"><i class="fa-solid fa-ticket mr-1"></i>{{ item.ticket }}</p>
+                    <p v-if="item.notes" class="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border-l-2 border-[#00b4d8] leading-relaxed"><i class="fa-regular fa-lightbulb mr-1 text-[#00b4d8]"></i>{{ item.notes }}</p>
                   </div>
                 </div>
-                <a :href="'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(item.name)" target="_blank" class="flex-shrink-0 w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center text-[#0077b6] hover:bg-[#00b4d8] hover:text-white transition-colors"><i class="fa-solid fa-diamond-turn-right text-sm"></i></a>
+                <a :href="'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(item.name)" target="_blank" class="w-8 h-8 flex-shrink-0 rounded-full bg-sky-50 flex items-center justify-center text-[#0077b6] hover:bg-[#00b4d8] hover:text-white transition-colors mt-0.5">
+                  <i class="fa-solid fa-diamond-turn-right text-[12px]"></i>
+                </a>
               </div>
-              <div class="flex justify-end space-x-3 mt-3 pt-2 border-t border-slate-50 text-xs text-slate-400">
-                <button @click="moveItem(idx, -1)" v-if="idx > 0" class="hover:text-slate-600"><i class="fa-solid fa-arrow-up"></i></button>
-                <button @click="moveItem(idx, 1)" v-if="idx < currentDayItinerary.length - 1" class="hover:text-slate-600"><i class="fa-solid fa-arrow-down"></i></button>
+              <div class="flex justify-end space-x-3 mt-3 pt-2 border-t border-slate-50 text-[11px] text-slate-300">
+                <button @click="moveItem(idx, -1)" v-if="idx > 0" class="hover:text-slate-500"><i class="fa-solid fa-arrow-up"></i></button>
+                <button @click="moveItem(idx, 1)" v-if="idx < currentDayItinerary.length - 1" class="hover:text-slate-500"><i class="fa-solid fa-arrow-down"></i></button>
                 <button @click="openEditModal(item)" class="hover:text-[#0077b6]"><i class="fa-solid fa-pen"></i> 編輯</button>
               </div>
             </div>
 
-            <div v-if="idx < currentDayItinerary.length - 1" class="my-3 ml-2 flex items-center space-x-2 text-xs font-medium text-slate-400">
-              <span class="inline-flex items-center bg-slate-200/60 px-2 py-0.5 rounded-full text-[11px] text-slate-600"><i :class="getTransitIcon(item.transitType)" class="mr-1 text-slate-500"></i>{{ item.transitTime || '15' }} 分鐘</span>
-              <div class="flex-1 border-t border-dashed border-slate-300"></div>
+            <div v-if="idx < currentDayItinerary.length - 1" class="my-3 ml-1 flex items-center space-x-2 text-[11px] text-slate-400">
+              <span class="inline-flex items-center bg-slate-100 px-2.5 py-0.5 rounded-full text-[10px] font-medium text-slate-500 relative z-10 border border-white shadow-sm"><i :class="getTransitIcon(item.transitType)" class="mr-1 opacity-70"></i>{{ item.transitTime || '15' }} 分</span>
             </div>
+          </div>
+          <div v-if="currentDayItinerary.length === 0" class="text-center py-12 text-slate-400 font-light text-sm bg-white rounded-2xl border border-dashed border-slate-200">
+            <i class="fa-solid fa-map-pin mb-2 block text-lg text-slate-300"></i> 此日尚未安排行程！
           </div>
         </div>
         <button @click="openAddModal('itinerary')" class="fixed right-6 bottom-6 w-14 h-14 bg-[#0077b6] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#00b4d8] active:scale-95 transition-all z-40"><i class="fa-solid fa-plus text-xl"></i></button>
       </div>
 
+      <!-- ==================== 2. 資訊分頁 (雨天備案等) ==================== -->
       <div v-if="activeTab === 'info'" class="space-y-4">
+        
+        <!-- ⭐ 【全新功能】雨天備案區域 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-umbrella text-blue-500 mr-2 text-lg"></i>雨天備案清單</h3>
+          <p class="text-[11px] text-slate-500 leading-relaxed mb-4 bg-blue-50/50 p-2 rounded-lg border-l-2 border-blue-300">
+            <i class="fa-regular fa-lightbulb text-blue-400 mr-1"></i>小提示：Outlet 和國際通部分路段在戶外，雨天建議攜帶雨具，或專攻有頂棚的商店街喔！
+          </p>
+
+          <div v-for="region in ['北區', '中區', '南區']" :key="region" class="mb-5 last:mb-0">
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="bg-slate-700 text-white text-[11px] px-2 py-0.5 rounded-md font-bold tracking-widest">{{ region }}</span>
+              <div class="flex-1 border-t border-slate-100"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ' 沖繩')" target="_blank" v-for="spot in rainySpots.filter(s => s.region === region)" :key="spot.name" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-1.5 flex flex-col justify-between hover:shadow-md transition-shadow group">
+                
+                <!-- 卡片專屬封面 Logo Pattern -->
+                <div class="relative h-24 rounded-xl overflow-hidden mb-1.5 flex items-center justify-center transition-transform group-hover:scale-[1.02]" :class="spot.color">
+                  <i :class="spot.icon" class="text-4xl text-white opacity-90 drop-shadow-md"></i>
+                  <!-- 右下角分類標籤 -->
+                  <div class="absolute bottom-1.5 right-1.5 bg-black/20 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm">
+                    <span class="text-[9px] text-white font-bold tracking-widest">{{ spot.category }}</span>
+                  </div>
+                </div>
+                
+                <div class="px-1 pb-1">
+                  <p class="text-[13px] font-bold text-slate-800 leading-tight truncate">{{ spot.name }}</p>
+                  <p class="text-[9px] text-slate-400 font-light mt-0.5 truncate">{{ spot.en }}</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-calculator text-amber-500 mr-2"></i>日幣匯率即時試算</h3>
           <div class="grid grid-cols-2 gap-3 items-center">
@@ -115,6 +187,7 @@
             </div>
           </div>
         </div>
+        
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-plane-departure text-[#0077b6] mr-2"></i>航班固定資訊</h3>
           <div class="space-y-3">
@@ -122,8 +195,18 @@
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100"><p class="text-xs font-bold text-indigo-600 mb-1">🛬 回程航班 (IT289)</p><p class="text-xs text-slate-600 font-light">2026/07/16 那霸 (OKA) 21:40 → 高雄 (KHH) 22:30</p></div>
           </div>
         </div>
+        
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-hotel text-emerald-600 mr-2"></i>預訂住宿</h3>
+          <div class="p-1">
+            <h4 class="text-sm font-bold text-slate-800">東橫INN 那霸新都心歌町</h4>
+            <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i>1 Chome-2-27 Omoromachi, Naha, Okinawa</p>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=Toyoko+INN+Naha+Shintoshin+Omoromachi" target="_blank" class="mt-3 inline-flex items-center text-xs text-[#0077b6] font-medium bg-sky-50 px-3 py-1.5 rounded-lg hover:bg-sky-100"><i class="fa-solid fa-map-location-dot mr-1"></i>直接導航至飯店</a>
+          </div>
+        </div>
       </div>
 
+      <!-- ==================== 3. 購物清單分頁 ==================== -->
       <div v-if="activeTab === 'shopping'">
         <div class="grid grid-cols-2 gap-3">
           <div v-for="shop in shoppingList" :key="shop.id" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 p-2 flex flex-col justify-between">
@@ -138,17 +221,11 @@
         <button @click="openAddModal('shopping')" class="fixed right-6 bottom-6 w-14 h-14 bg-[#0077b6] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#00b4d8] active:scale-95 transition-all z-40"><i class="fa-solid fa-plus text-xl"></i></button>
       </div>
 
+      <!-- ==================== 4. 旅遊記帳與公私帳拆分分頁 ==================== -->
       <div v-if="activeTab === 'expenses'" class="space-y-4">
-        
         <div class="grid grid-cols-2 gap-3">
-          <button @click="expenseSubTab = 'public'" :class="expenseSubTab === 'public' ? 'bg-[#0077b6] text-white shadow-md font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="py-2.5 rounded-xl text-sm transition-all text-center flex items-center justify-center space-x-1.5">
-            <i class="fa-solid fa-users"></i>
-            <span>公帳分帳</span>
-          </button>
-          <button @click="expenseSubTab = 'private'" :class="expenseSubTab === 'private' ? 'bg-[#0077b6] text-white shadow-md font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="py-2.5 rounded-xl text-sm transition-all text-center flex items-center justify-center space-x-1.5">
-            <i class="fa-solid fa-user-lock"></i>
-            <span>私帳記帳</span>
-          </button>
+          <button @click="expenseSubTab = 'public'" :class="expenseSubTab === 'public' ? 'bg-[#0077b6] text-white shadow-md font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="py-2.5 rounded-xl text-sm transition-all text-center flex items-center justify-center space-x-1.5"><i class="fa-solid fa-users"></i><span>公帳分帳</span></button>
+          <button @click="expenseSubTab = 'private'" :class="expenseSubTab === 'private' ? 'bg-[#0077b6] text-white shadow-md font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="py-2.5 rounded-xl text-sm transition-all text-center flex items-center justify-center space-x-1.5"><i class="fa-solid fa-user-lock"></i><span>私帳記帳</span></button>
         </div>
 
         <div v-if="expenseSubTab === 'public'" class="space-y-4">
@@ -156,10 +233,7 @@
             <div class="flex justify-between items-start">
               <div class="text-center w-full mt-2">
                 <p class="text-sm font-light tracking-wide opacity-90">公帳總支出總計 (台幣)</p>
-                <div class="flex items-center justify-center my-1 space-x-1">
-                  <span class="text-2xl font-bold">NT$</span>
-                  <span class="text-4xl font-black tracking-tight">{{ totalExpensesTwd.toLocaleString() }}</span>
-                </div>
+                <div class="flex items-center justify-center my-1 space-x-1"><span class="text-2xl font-bold">NT$</span><span class="text-4xl font-black tracking-tight">{{ totalExpensesTwd.toLocaleString() }}</span></div>
                 <p class="text-[11px] opacity-75 mt-1.5">(3人平均每人應付：NT$ {{ Math.round(totalExpensesTwd / 3).toLocaleString() }} 元)</p>
               </div>
               <div class="absolute right-4 top-4 text-right bg-white/20 p-2 rounded-xl backdrop-blur-sm border border-white/30">
@@ -168,31 +242,19 @@
               </div>
             </div>
           </div>
-
           <div class="grid grid-cols-3 gap-2">
             <div v-for="payer in payersList" :key="payer" class="bg-white rounded-xl p-3 text-center shadow-sm border border-slate-100 flex flex-col justify-center">
               <p class="text-[11px] text-slate-400 font-medium mb-0.5">{{ payer }} 墊付</p>
               <p class="text-sm font-bold text-slate-800">NT$ {{ getPayerTotalTwd(payer).toLocaleString() }}</p>
             </div>
           </div>
-
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
             <p class="text-xs font-bold text-slate-500 mb-3"><i class="fa-solid fa-plus mr-1"></i>新增公帳消費</p>
             <div class="space-y-3">
               <div><input type="text" v-model="quickExpense.name" placeholder="項目說明 (例如：共同晚餐)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#0077b6]"></div>
               <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1">誰先代墊？</label>
-                  <select v-model="quickExpense.payer" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-medium text-slate-700">
-                    <option v-for="p in payersList" :key="p" :value="p">{{ p }}</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1">輸入幣別</label>
-                  <select v-model="quickExpense.currency" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-bold text-[#0077b6]">
-                    <option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option>
-                  </select>
-                </div>
+                <div><label class="block text-[10px] text-slate-400 mb-1">誰先代墊？</label><select v-model="quickExpense.payer" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-medium text-slate-700"><option v-for="p in payersList" :key="p" :value="p">{{ p }}</option></select></div>
+                <div><label class="block text-[10px] text-slate-400 mb-1">輸入幣別</label><select v-model="quickExpense.currency" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-bold text-[#0077b6]"><option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option></select></div>
               </div>
               <div class="flex items-center space-x-2 pt-1">
                 <div class="relative flex-1">
@@ -203,16 +265,12 @@
               </div>
             </div>
           </div>
-
           <div class="space-y-2 mt-4">
             <p class="text-xs font-bold text-slate-400 px-1">公帳消費歷史紀錄</p>
             <div v-for="exp in expenses" :key="exp.id" class="bg-white rounded-xl p-3 shadow-sm border border-slate-50 flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center text-xs font-bold text-[#0077b6]">{{ exp.payer.substring(0,1) }}</div>
-                <div>
-                  <h4 class="text-sm font-bold text-slate-800">{{ exp.name }}</h4>
-                  <p class="text-[10px] text-slate-400 font-light">{{ exp.date }} · {{ exp.payer }}墊付 <span v-if="exp.origCurrency === 'JPY'">(輸入: ¥{{ exp.origAmount }})</span></p>
-                </div>
+                <div><h4 class="text-sm font-bold text-slate-800">{{ exp.name }}</h4><p class="text-[10px] text-slate-400 font-light">{{ exp.date }} · {{ exp.payer }}墊付 <span v-if="exp.origCurrency === 'JPY'">(輸入: ¥{{ exp.origAmount }})</span></p></div>
               </div>
               <div class="flex items-center space-x-3">
                 <span class="text-sm font-bold text-slate-700">NT$ {{ Math.round(exp.amountTwd).toLocaleString() }}</span>
@@ -229,10 +287,7 @@
             <div class="flex justify-between items-start">
               <div class="text-center w-full mt-2">
                 <p class="text-sm font-light tracking-wide opacity-90">個人私帳總支出 (台幣)</p>
-                <div class="flex items-center justify-center my-1 space-x-1">
-                  <span class="text-2xl font-bold">NT$</span>
-                  <span class="text-4xl font-black tracking-tight">{{ totalPrivateExpensesTwd.toLocaleString() }}</span>
-                </div>
+                <div class="flex items-center justify-center my-1 space-x-1"><span class="text-2xl font-bold">NT$</span><span class="text-4xl font-black tracking-tight">{{ totalPrivateExpensesTwd.toLocaleString() }}</span></div>
                 <p class="text-[11px] opacity-75 mt-1.5">(主要用於紀錄個人購買的伴手禮、紀念品等私人物品)</p>
               </div>
               <div class="absolute right-4 top-4 text-right bg-white/20 p-2 rounded-xl backdrop-blur-sm border border-white/30">
@@ -241,19 +296,11 @@
               </div>
             </div>
           </div>
-
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
             <p class="text-xs font-bold text-slate-500 mb-3"><i class="fa-solid fa-bag-shopping mr-1"></i>新增個人私帳 (伴手禮/紀念品)</p>
             <div class="space-y-3">
-              <div>
-                <input type="text" v-model="quickPrivateExpense.name" placeholder="項目名稱 (例如：御菓子御殿紅薯塔)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none focus:border-teal-500">
-              </div>
-              <div>
-                <label class="block text-[10px] text-slate-400 mb-1">選擇輸入幣別</label>
-                <select v-model="quickPrivateExpense.currency" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-bold text-teal-600">
-                  <option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option>
-                </select>
-              </div>
+              <div><input type="text" v-model="quickPrivateExpense.name" placeholder="項目名稱 (例如：御菓子御殿紅薯塔)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none focus:border-teal-500"></div>
+              <div><label class="block text-[10px] text-slate-400 mb-1">選擇輸入幣別</label><select v-model="quickPrivateExpense.currency" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-bold text-teal-600"><option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option></select></div>
               <div class="flex items-center space-x-2 pt-1">
                 <div class="relative flex-1">
                   <span class="absolute left-3 top-2 text-sm font-bold text-slate-400">{{ quickPrivateExpense.currency === 'JPY' ? '¥' : '$' }}</span>
@@ -263,16 +310,12 @@
               </div>
             </div>
           </div>
-
           <div class="space-y-2 mt-4">
             <p class="text-xs font-bold text-slate-400 px-1">私帳消費歷史紀錄</p>
             <div v-for="exp in privateExpenses" :key="exp.id" class="bg-white rounded-xl p-3 shadow-sm border border-slate-50 flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-xs font-bold text-teal-600"><i class="fa-solid fa-gift"></i></div>
-                <div>
-                  <h4 class="text-sm font-bold text-slate-800">{{ exp.name }}</h4>
-                  <p class="text-[10px] text-slate-400 font-light">{{ exp.date }} · 個人私帳 <span v-if="exp.origCurrency === 'JPY'">(輸入: ¥{{ exp.origAmount }})</span></p>
-                </div>
+                <div><h4 class="text-sm font-bold text-slate-800">{{ exp.name }}</h4><p class="text-[10px] text-slate-400 font-light">{{ exp.date }} · 個人私帳 <span v-if="exp.origCurrency === 'JPY'">(輸入: ¥{{ exp.origAmount }})</span></p></div>
               </div>
               <div class="flex items-center space-x-3">
                 <span class="text-sm font-bold text-slate-700">NT$ {{ Math.round(exp.amountTwd).toLocaleString() }}</span>
@@ -283,25 +326,23 @@
             <div v-if="privateExpenses.length === 0" class="text-center py-6 text-slate-300 text-xs font-light">目前無任何私帳消費明細</div>
           </div>
         </div>
-
       </div>
     </main>
 
+    <!-- 彈出視窗 1：新增記帳明細防呆確認 -->
     <div v-if="showExpenseConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-5">
       <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl transform transition-transform duration-300">
         <div class="text-center mb-4">
           <div class="w-12 h-12 rounded-full bg-sky-50 text-[#0077b6] flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-file-invoice-dollar text-xl"></i></div>
           <h3 class="font-bold text-lg text-slate-800">確認記帳明細</h3>
         </div>
-        
         <div class="bg-slate-50 rounded-xl p-4 space-y-3 text-sm border border-slate-100">
           <div class="flex justify-between"><span class="text-slate-500">帳目分類</span><span class="font-bold" :class="confirmExpenseData.type === 'public' ? 'text-[#0077b6]':'text-teal-600'">{{ confirmExpenseData.type === 'public' ? '👥 團體公帳' : '🔒 個人私帳' }}</span></div>
           <div class="flex justify-between"><span class="text-slate-500">消費項目</span><span class="font-bold text-slate-800">{{ confirmExpenseData.name }}</span></div>
           <div v-if="confirmExpenseData.type === 'public'" class="flex justify-between"><span class="text-slate-500">墊付人員</span><span class="font-bold text-[#0077b6]">{{ confirmExpenseData.payer }}</span></div>
           <div class="flex justify-between"><span class="text-slate-500">輸入金額</span><span class="font-bold text-slate-800">{{ confirmExpenseData.currency === 'JPY' ? '¥ 日幣' : '$ 台幣' }} {{ Number(confirmExpenseData.amount).toLocaleString() }}</span></div>
           <div class="pt-3 mt-3 border-t border-dashed border-slate-200 flex justify-between items-center">
-            <span class="text-slate-500 text-xs">系統自動折算</span>
-            <span class="font-black text-lg text-emerald-600">NT$ {{ Math.round(confirmExpenseData.currency === 'JPY' ? confirmExpenseData.amount * fxRateGlobal : confirmExpenseData.amount).toLocaleString() }}</span>
+            <span class="text-slate-500 text-xs">系統自動折算</span><span class="font-black text-lg text-emerald-600">NT$ {{ Math.round(confirmExpenseData.currency === 'JPY' ? confirmExpenseData.amount * fxRateGlobal : confirmExpenseData.amount).toLocaleString() }}</span>
           </div>
         </div>
         <div class="flex justify-end space-x-2 mt-5">
@@ -311,6 +352,7 @@
       </div>
     </div>
 
+    <!-- 彈出視窗 2：通用編輯 Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="bg-white w-full max-w-md rounded-t-[28px] sm:rounded-2xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto transform transition-transform duration-300">
         <div class="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
@@ -324,13 +366,7 @@
           <div><label class="block text-xs font-bold text-slate-500 mb-1">發生/營業時間</label><input type="text" v-model="form.itinerary.hours" placeholder="例如: 08:30 - 12:20" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></div>
           <div v-if="form.itinerary.category === '景點'"><label class="block text-xs font-bold text-slate-500 mb-1">門票費用</label><input type="text" v-model="form.itinerary.ticket" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></div>
           <div v-if="form.itinerary.category === '航班'"><label class="block text-xs font-bold text-slate-500 mb-1">航班編號</label><input type="text" v-model="form.itinerary.flightNum" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></div>
-          <div>
-            <label class="block text-xs font-bold text-slate-500 mb-1">下一站交通方式 & 預估時間(分)</label>
-            <div class="grid grid-cols-2 gap-2">
-              <select v-model="form.itinerary.transitType" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-sm"><option value="開車">🚗 自駕開車</option><option value="步行">🚶 步行</option><option value="大眾運輸">🚌 大眾運輸</option></select>
-              <input type="number" v-model="form.itinerary.transitTime" placeholder="時間(分鐘)" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-            </div>
-          </div>
+          <div><label class="block text-xs font-bold text-slate-500 mb-1">下一站交通方式 & 預估時間(分)</label><div class="grid grid-cols-2 gap-2"><select v-model="form.itinerary.transitType" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-sm"><option value="開車">🚗 自駕開車</option><option value="步行">🚶 步行</option><option value="大眾運輸">🚌 大眾運輸</option></select><input type="number" v-model="form.itinerary.transitTime" placeholder="時間(分鐘)" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></div></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">特色與獨家備註</label><textarea v-model="form.itinerary.notes" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></textarea></div>
         </div>
 
@@ -342,26 +378,15 @@
         <div v-if="modalTarget === 'expense_edit'" class="space-y-4">
           <div><label class="block text-xs font-bold text-slate-500 mb-1">項目名稱</label><input type="text" v-model="form.expenseEdit.name" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
           <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-xs font-bold text-slate-500 mb-1">墊付人員</label>
-              <select v-model="form.expenseEdit.payer" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm">
-                <option v-for="p in payersList" :key="p" :value="p">{{ p }}</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 mb-1">原始幣別</label>
-              <select v-model="form.expenseEdit.currency" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option></select>
-            </div>
+            <div><label class="block text-xs font-bold text-slate-500 mb-1">墊付人員</label><select v-model="form.expenseEdit.payer" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option v-for="p in payersList" :key="p" :value="p">{{ p }}</option></select></div>
+            <div><label class="block text-xs font-bold text-slate-500 mb-1">原始幣別</label><select v-model="form.expenseEdit.currency" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option></select></div>
           </div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">輸入金額</label><input type="number" v-model="form.expenseEdit.amount" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm font-bold text-slate-800"></div>
         </div>
 
         <div v-if="modalTarget === 'private_expense_edit'" class="space-y-4">
           <div><label class="block text-xs font-bold text-slate-500 mb-1">個人項目名稱</label><input type="text" v-model="form.privateExpenseEdit.name" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
-          <div>
-            <label class="block text-xs font-bold text-slate-500 mb-1">原始輸入幣別</label>
-            <select v-model="form.privateExpenseEdit.currency" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option></select>
-          </div>
+          <div><label class="block text-xs font-bold text-slate-500 mb-1">原始輸入幣別</label><select v-model="form.privateExpenseEdit.currency" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option></select></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">輸入金額</label><input type="number" v-model="form.privateExpenseEdit.amount" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm font-bold text-slate-800"></div>
         </div>
 
@@ -382,7 +407,7 @@
     createApp({
       setup() {
         const activeTab = ref('itinerary');
-        const expenseSubTab = ref('public'); // 預設打開公帳面板
+        const expenseSubTab = ref('public'); 
         const selectedDayIdx = ref(0);
         
         const showModal = ref(false);
@@ -408,64 +433,83 @@
 
         const itineraries = ref([]);
         const shoppingList = ref([]);
-        const expenses = ref([]);        // 公帳陣列
-        const privateExpenses = ref([]); // ⭐【新功能】私帳陣列
+        const expenses = ref([]);        
+        const privateExpenses = ref([]); 
 
         const form = ref({
           itinerary: { category: '景點', name: '', hours: '', ticket: '', flightNum: '', notes: '', transitType: '大眾運輸', transitTime: 15 },
           shopping: { name: '', img: '' },
           expenseEdit: { name: '', payer: '', currency: 'JPY', amount: '' },
-          privateExpenseEdit: { name: '', currency: 'JPY', amount: '' } // ⭐私帳編輯模型
+          privateExpenseEdit: { name: '', currency: 'JPY', amount: '' } 
         });
 
         const quickExpense = ref({ name: '', amount: '', payer: '婉禎', currency: 'JPY' });
-        const quickPrivateExpense = ref({ name: '', amount: '', currency: 'JPY' }); // ⭐私帳新增模型
-        
-        // 用於防呆確認框暫存資料
+        const quickPrivateExpense = ref({ name: '', amount: '', currency: 'JPY' }); 
         const confirmExpenseData = ref({ type: 'public', name: '', payer: '', currency: 'JPY', amount: 0 });
+
+        // ⭐ 新增雨天備案資料清單
+        const rainySpots = ref([
+          { region: '北區', category: '參觀', name: 'Orion 啤酒廠', en: 'Orion Happy Park', icon: 'fa-solid fa-beer-mug-empty', color: 'bg-amber-400' },
+          { region: '北區', category: '參觀', name: '御菓子御殿 (讀谷本店)', en: 'Okashigoten Yomitan', icon: 'fa-solid fa-cookie-bite', color: 'bg-purple-500' },
+          { region: '中區', category: '放鬆', name: '溫海水 Spa (宜野座)', en: 'TAPIC Thalasso Center', icon: 'fa-solid fa-water', color: 'bg-cyan-500' },
+          { region: '中區', category: '購物', name: '永旺夢樂城沖繩來客夢', en: 'AEON MALL Rycom', icon: 'fa-solid fa-bag-shopping', color: 'bg-rose-500' },
+          { region: '中區', category: '購物', name: '浦添西海岸 PARCO CITY', en: 'PARCO CITY', icon: 'fa-solid fa-store', color: 'bg-teal-500' },
+          { region: '中區', category: 'DIY', name: 'Gala 青海', en: 'Gala Aoiumi', icon: 'fa-solid fa-droplet', color: 'bg-sky-400' },
+          { region: '中區', category: 'DIY', name: '琉球村', en: 'Ryukyu Mura', icon: 'fa-solid fa-house-chimney', color: 'bg-orange-500' },
+          { region: '南區', category: '購物', name: 'iias 沖繩豐崎', en: 'iias Okinawa Toyosaki', icon: 'fa-solid fa-fish', color: 'bg-blue-400' },
+          { region: '南區', category: '購物', name: 'San-A 那霸 Main Place', en: 'San-A Naha Main Place', icon: 'fa-solid fa-cart-shopping', color: 'bg-red-400' },
+          { region: '南區', category: '購物', name: 'DFS 沖繩 T 廣場', en: 'T Galleria by DFS', icon: 'fa-solid fa-gem', color: 'bg-slate-800' },
+          { region: '南區', category: '購物', name: '沖繩 ASHIBINAA Outlet', en: 'ASHIBINAA Outlet', icon: 'fa-solid fa-tags', color: 'bg-emerald-500' },
+          { region: '南區', category: '購物', name: '小祿 Aeon (那霸店)', en: 'AEON Naha', icon: 'fa-solid fa-basket-shopping', color: 'bg-fuchsia-500' },
+          { region: '南區', category: '購物', name: '國際通商店街', en: 'Kokusai-dori Street', icon: 'fa-solid fa-shop', color: 'bg-amber-500' },
+          { region: '南區', category: '放鬆', name: '琉球溫泉 龍神之湯', en: 'Ryujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-sky-500' },
+          { region: '南區', category: '放鬆', name: '天然溫泉佐敷 猿人之湯', en: 'Sarujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-orange-400' },
+          { region: '南區', category: '參觀', name: '玉泉洞', en: 'Gyokusendo Cave', icon: 'fa-solid fa-mountain', color: 'bg-stone-500' },
+          { region: '南區', category: '參觀', name: '沖繩縣立博物館・美術館', en: 'Prefectural Museum', icon: 'fa-solid fa-building-columns', color: 'bg-indigo-500' },
+          { region: '南區', category: 'DIY', name: '首里琉染', en: 'Shuri Ryusen', icon: 'fa-solid fa-palette', color: 'bg-pink-400' },
+        ]);
 
         const seedData = [
           // Day 1
           { id: 'd1-1', dayIdx: 0, category: '航班', name: '抵達沖繩 (那霸機場)', hours: '12:30', flightNum: 'IT288', notes: '在售票機購買單軌電車一日券（1000日圓）。從國際線2樓走天橋長廊連接至單軌電車站。', transitType: '大眾運輸', transitTime: 80 },
           { id: 'd1-2', dayIdx: 0, category: '住宿', name: '東橫INN 那霸新都心站前', hours: '13:50', notes: '入住飯店 Check-in 放行李。從那霸機場站搭到歌町站，西口出站步行3分鐘。', transitType: '步行', transitTime: 5 },
-          { id: 'd1-3', dayIdx: 0, category: '購物', name: 'Naha Main Place 購物中心', hours: '15:30', notes: '商場內日式定食午晚餐（起司炸豬排與沙朗牛肉鍋，免費續味噌湯沙拉）。大型生鮮超市可補貨。', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd1-4', dayIdx: 0, category: '景點', name: '夜遊國際通 & 牧志公設市場', hours: '19:00 - 22:00', notes: '品嚐十元餅、紅薯黑糖冰淇淋(600日圓)、海葡萄。公設市場19:50收攤。一蘭拉麵排隊約需50分。', transitType: '步行', transitTime: 10 },
+          { id: 'd1-3', dayIdx: 0, category: '美食', name: 'Naha Main Place 購物中心', hours: '15:30', notes: '商場內日式定食午晚餐。大型生鮮超市可補貨。', transitType: '大眾運輸', transitTime: 15 },
+          { id: 'd1-4', dayIdx: 0, category: '景點', name: '夜遊國際通 & 牧志公設市場', hours: '19:00 - 22:00', notes: '品嚐十元餅、紅薯黑糖冰淇淋。公設市場19:50收攤。一蘭排隊約50分。', transitType: '步行', transitTime: 10 },
           // Day 2
           { id: 'd2-1', dayIdx: 1, category: '美食', name: '飯店早餐與出發', hours: '07:00', notes: '享用東橫INN免費特製飯糰、熱湯與咖啡', transitType: '步行', transitTime: 10 },
-          { id: 'd2-2', dayIdx: 1, category: '其他', name: '前往北部一日遊集合點', hours: '07:40 - 08:00', notes: '歌町站附近集合，08:20 準時發車。報名費約台幣1,233元', transitType: '大眾運輸', transitTime: 50 },
+          { id: 'd2-2', dayIdx: 1, category: '交通', name: '前往北部一日遊集合點', hours: '07:40 - 08:00', notes: '歌町站附近集合，08:20 準時發車。報名費約台幣1,233元', transitType: '大眾運輸', transitTime: 50 },
           { id: 'd2-3', dayIdx: 1, category: '景點', name: '萬座毛', hours: '08:50 - 09:20', ticket: '跟團含', notes: '欣賞著名象鼻海蝕懸崖與大草坪，有伴手禮商店街。', transitType: '大眾運輸', transitTime: 60 },
           { id: 'd2-4', dayIdx: 1, category: '景點', name: '古宇利島 & 跨海大橋', hours: '10:20 - 10:50', notes: '品嚐海鹽牛奶冰淇淋（500日圓），欣賞1,960公尺的跨海大橋。', transitType: '大眾運輸', transitTime: 30 },
           { id: 'd2-5', dayIdx: 1, category: '景點', name: '美麗海水族館 & 海洋博公園', hours: '11:20 - 15:30', notes: '午餐自理(園內6家餐廳)。必看 13:00 或 15:00 免費海豚秀、唯一大鯨鯊。', transitType: '大眾運輸', transitTime: 90 },
           { id: 'd2-6', dayIdx: 1, category: '景點', name: '北谷美國村 (★解散離團)', hours: '17:08', notes: '主動告知導遊脫隊。自由逛異國街景、看夕邊夕陽。', transitType: '步行', transitTime: 10 },
-          { id: 'd2-7', dayIdx: 1, category: '美食', name: '燒肉王 (北谷店)', hours: '18:00 - 19:40', notes: '過麥當勞馬路左轉。強推 3,280日圓牛肉餐位。平板點餐，換烤網說「Change」', transitType: '步行', transitTime: 5 },
+          { id: 'd2-7', dayIdx: 1, category: '美食', name: '燒肉王 (北谷店)', hours: '18:00 - 19:40', notes: '過麥當勞馬路左轉。強推 3,280日圓牛肉餐位。', transitType: '步行', transitTime: 5 },
           { id: 'd2-8', dayIdx: 1, category: '景點', name: '美國村海邊美食商店街', hours: '19:40 - 20:15', notes: '吃飽散步消化，吹海風看繽紛彩虹夜景', transitType: '大眾運輸', transitTime: 60 },
-          { id: 'd2-9', dayIdx: 1, category: '其他', name: '返回新都心飯店', hours: '20:40 - 22:08', notes: '麥當勞旁桑江站搭28號公車到那霸總站(約750日圓)，轉單軌旭橋站回飯店。', transitType: '步行', transitTime: 10 },
-          // Day 3
+          { id: 'd2-9', dayIdx: 1, category: '交通', name: '返回新都心飯店', hours: '20:40 - 22:08', notes: '桑江站搭28號公車到那霸總站(約750日圓)，轉單軌回飯店。', transitType: '步行', transitTime: 10 },
+          // Day 3 
           { id: 'd3-0', dayIdx: 2, category: '交通', name: '出發那霸巴士總站', hours: '08:30', notes: '旭橋站東口直走天橋長廊到底，右轉搭電梯即達。', transitType: '大眾運輸', transitTime: 0 },
-          { id: 'd3-1', dayIdx: 2, category: '景點', name: '玉泉洞 (沖繩世界文化王國)', hours: '08:30 - 12:20', ticket: '出示網購QR Code', notes: '巴士總站9號月台搭54/83號(車資670日圓)。探訪神秘鐘乳石洞、看太鼓秀，午餐吃沖繩麵(990日圓)。', transitType: '大眾運輸', transitTime: 60 },
-          { id: 'd3-2', dayIdx: 2, category: '景點', name: 'DMM Kariyushi 水族館', hours: '13:30 - 15:30', ticket: '赤嶺站轉TK02', notes: '搭回赤嶺站，換東京巴士(TK02)至iias豐崎。看超美水母萬花筒特效。', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd3-3', dayIdx: 2, category: '景點', name: '瀨長島白色建築群看夕陽', hours: '16:30 - 19:40', notes: '搭同路線東京巴士。漫步小希臘，看飛機起降與極美日落。', transitType: '大眾運輸', transitTime: 20 },
-          { id: 'd3-4', dayIdx: 2, category: '美食', name: '魚屋直營食堂 魚まる', hours: '20:00 - 21:00', notes: '搭回赤嶺站步行5分。老饕激推超浮誇海鮮丼！只要1,188日圓起。', transitType: '步行', transitTime: 10 },
+          { id: 'd3-1', dayIdx: 2, category: '景點', name: '玉泉洞 (沖繩世界文化王國)', hours: '08:30 - 12:20', ticket: '出示網購QR', notes: '搭54/83號(車資670日圓)。探訪神秘鐘乳石洞、看太鼓秀。', transitType: '大眾運輸', transitTime: 75 },
+          { id: 'd3-3', dayIdx: 2, category: '景點', name: '瀨長島白色建築群', hours: '16:30 - 19:40', notes: '漫步小希臘，看飛機起降與極美日落。', transitType: '大眾運輸', transitTime: 20 },
+          { id: 'd3-4', dayIdx: 2, category: '美食', name: '魚屋直營食堂 魚まる', hours: '20:00 - 21:00', notes: '老饕激推超浮誇海鮮丼！1,188日圓起。', transitType: '步行', transitTime: 10 },
           // Day 4
           { id: 'd4-1', dayIdx: 3, category: '交通', name: '購買單軌電車 48小時通票', hours: '08:00', notes: '售票機一次買兩日券1800日圓。★今天不退房。', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd4-2', dayIdx: 3, category: '景點', name: '波上宮 & 波之上海灘', hours: '08:30 - 10:30', notes: '搭至旭橋站步行15分。參拜懸崖神社，旁邊是那霸市區唯一免費海水浴場。', transitType: '步行', transitTime: 25 },
+          { id: 'd4-2', dayIdx: 3, category: '景點', name: '波上宮 & 波之上海灘', hours: '08:30 - 10:30', notes: '搭至旭橋站步行15分。參拜懸崖神社，旁邊是那霸市區免費海水浴場。', transitType: '步行', transitTime: 25 },
           { id: 'd4-3', dayIdx: 3, category: '景點', name: '奧武山公園溜滑梯', hours: '11:00 - 12:00', notes: '搭到奧武山公園站北口步行6分。免費暢玩超巨型滾輪溜滑梯！', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd4-4', dayIdx: 3, category: '美食', name: '通堂拉麵 & AEON免稅店採購', hours: '12:02 - 17:00', notes: '小路站步行3分。推薦男味拉麵(加免費辣豆芽)，吃飽步行至旁邊超大AEON血拼。', transitType: '大眾運輸', transitTime: 20 },
+          { id: 'd4-4', dayIdx: 3, category: '購物', name: '通堂拉麵 & AEON免稅店', hours: '12:02 - 17:00', notes: '小路站步行3分。推薦男味拉麵，吃飽步行至旁邊AEON血拼。', transitType: '大眾運輸', transitTime: 20 },
           // Day 5
-          { id: 'd5-1', dayIdx: 4, category: '住宿', name: '飯店退房與大件行李寄存', hours: '09:00', notes: '早上辦理退房，將所有行李免費寄放在一樓大廳櫃檯，輕裝出發。', transitType: '大眾運輸', transitTime: 38 },
-          { id: 'd5-2', dayIdx: 4, category: '景點', name: '首里城公園', hours: '09:38 - 11:20', notes: '★重要導航：定位「沖繩縣立藝術大學」走九慶門，免繞路爬坡。回程買明治夾心冰淇淋。', transitType: '大眾運輸', transitTime: 20 },
-          { id: 'd5-3', dayIdx: 4, category: '購物', name: '榮町市場 & 24hr大超市', hours: '11:40 - 12:30', notes: '安里站西口。買極划算的高級石垣牛排排餐、生魚片當午餐。', transitType: '大眾運輸', transitTime: 10 },
-          { id: 'd5-4', dayIdx: 4, category: '景點', name: '白天版國際通 & 屋台村補貨', hours: '12:40 - 14:30', notes: '牧志站出站。伴手禮最後大補貨，逛屋台村小巷。', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd5-5', dayIdx: 4, category: '其他', name: '返回新都心飯店取回行李', hours: '14:30 - 15:00', notes: '從牧志站搭回歌町站，憑單據領回早上寄存的大件行李。', transitType: '大眾運輸', transitTime: 30 },
-          { id: 'd5-6', dayIdx: 4, category: '景點', name: '壺川站唯美河岸沿線漫步', hours: '15:37', notes: '提行李搭至壺川站。沿河岸散步吹海風，車站有大型置物櫃。', transitType: '大眾運輸', transitTime: 30 },
-          { id: 'd5-7', dayIdx: 4, category: '航班', name: '抵達那霸機場搭機返台', hours: '18:11', flightNum: 'IT289', notes: '搭乘 IT289 (OKA 21:40 -> KHH 22:30)。完美結束不自駕五天行程！', transitType: '步行', transitTime: 0 }
+          { id: 'd5-1', dayIdx: 4, category: '住宿', name: '飯店退房與寄存行李', hours: '09:00', notes: '早上辦理退房，將行李免費寄放在一樓大廳櫃檯，輕裝出發。', transitType: '大眾運輸', transitTime: 38 },
+          { id: 'd5-2', dayIdx: 4, category: '景點', name: '首里城公園', hours: '09:38 - 11:20', notes: '★定位「沖繩縣立藝術大學」走九慶門，免繞路爬坡。', transitType: '大眾運輸', transitTime: 20 },
+          { id: 'd5-3', dayIdx: 4, category: '購物', name: '榮町市場 & 24hr大超市', hours: '11:40 - 12:30', notes: '安里站西口。買極划算的高級石垣牛排排餐、生魚片。', transitType: '大眾運輸', transitTime: 10 },
+          { id: 'd5-4', dayIdx: 4, category: '景點', name: '白天版國際通 & 屋台村', hours: '12:40 - 14:30', notes: '牧志站出站。伴手禮最後大補貨，逛屋台村小巷。', transitType: '大眾運輸', transitTime: 15 },
+          { id: 'd5-5', dayIdx: 4, category: '交通', name: '返回新都心取回行李', hours: '14:30 - 15:00', notes: '從牧志站搭回歌町站，憑單據領回早上寄存的大件行李。', transitType: '大眾運輸', transitTime: 30 },
+          { id: 'd5-6', dayIdx: 4, category: '景點', name: '壺川站唯美河岸漫步', hours: '15:37', notes: '提行李搭至壺川站。沿河岸散步吹海風，車站有大型置物櫃。', transitType: '大眾運輸', transitTime: 30 },
+          { id: 'd5-7', dayIdx: 4, category: '航班', name: '抵達那霸機場搭機返台', hours: '18:11', flightNum: 'IT289', notes: '搭乘 IT289 (OKA 21:40 -> KHH 22:30)。完美結束五天行程！', transitType: '步行', transitTime: 0 }
         ];
 
         const loadSavedData = () => {
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v6');
-          const savedShopping = localStorage.getItem('ok_shopping_v6');
-          const savedExpenses = localStorage.getItem('ok_expenses_v6');
-          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v6'); // 私帳讀取
+          const savedItinerary = localStorage.getItem('ok_itinerary_final_v10');
+          const savedShopping = localStorage.getItem('ok_shopping_v10');
+          const savedExpenses = localStorage.getItem('ok_expenses_v10');
+          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v10'); 
 
           if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = seedData;
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
@@ -474,27 +518,49 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses], () => {
-          localStorage.setItem('ok_itinerary_final_v6', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v6', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v6', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v6', JSON.stringify(privateExpenses.value)); // 私帳儲存
+          localStorage.setItem('ok_itinerary_final_v10', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v10', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v10', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v10', JSON.stringify(privateExpenses.value)); 
         }, { deep: true });
 
         const currentDayItinerary = computed(() => { return itineraries.value.filter(item => item.dayIdx === selectedDayIdx.value); });
         
-        // 公帳台幣統計
         const totalExpensesTwd = computed(() => { return expenses.value.reduce((sum, item) => sum + Number(item.amountTwd || 0), 0); });
-        // ⭐【新功能】私帳台幣統計
         const totalPrivateExpensesTwd = computed(() => { return privateExpenses.value.reduce((sum, item) => sum + Number(item.amountTwd || 0), 0); });
-
         const getPayerTotalTwd = (payerName) => { return expenses.value.filter(e => e.payer === payerName).reduce((sum, item) => sum + Number(item.amountTwd || 0), 0); };
 
         const calcToTwd = () => { fxCalc.value.twd = Math.round(fxCalc.value.jpy * 0.215); };
         const calcToJpy = () => { fxCalc.value.jpy = Math.round(fxCalc.value.twd / 0.215); };
 
-        const getCategoryColor = (cat) => { const dict = { '景點': 'bg-[#0077b6]', '住宿': 'bg-emerald-600', '美食': 'bg-amber-500', '購物': 'bg-rose-500', '航班': 'bg-indigo-600', '交通': 'bg-sky-500', '其他': 'bg-slate-500' }; return dict[cat] || 'bg-blue-500'; };
+        const getAmPm = (hours) => {
+          if (!hours) return '全天';
+          const start = hours.split('-')[0].trim();
+          const hourPart = parseInt(start.split(':')[0]);
+          if (isNaN(hourPart)) return '全天';
+          return hourPart >= 12 ? '下午' : '上午';
+        };
+
+        const getStartTimeOnly = (hours) => {
+          if (!hours) return '--:--';
+          return hours.split('-')[0].trim();
+        };
+
+        const getDurationText = (hours) => {
+          if (!hours) return '依現場狀況彈性安排';
+          const parts = hours.split('-');
+          if (parts.length > 1) return `預計停留至 ${parts[1].trim()}`;
+          return `預計時間 ${hours.trim()}`;
+        };
+
+        const getCategoryTextColor = (cat) => {
+          const dict = { '景點': 'text-sky-500', '住宿': 'text-emerald-500', '美食': 'text-amber-500', '購物': 'text-rose-500', '航班': 'text-indigo-500', '交通': 'text-slate-500', '其他': 'text-slate-400' };
+          return dict[cat] || 'text-blue-500';
+        };
+
+        const getCategoryColor = (cat) => { const dict = { '景點': 'bg-[#0077b6]', '住宿': 'bg-emerald-600', '美食': 'bg-amber-500', '購物': 'bg-rose-500', '航班': 'bg-indigo-600', '交通': 'bg-slate-500', '其他': 'bg-slate-400' }; return dict[cat] || 'bg-blue-500'; };
         const getCategoryIcon = (cat) => { const dict = { '景點': 'fa-solid fa-camera-retro', '住宿': 'fa-solid fa-bed', '美食': 'fa-solid fa-utensils', '購物': 'fa-solid fa-cart-shopping', '航班': 'fa-solid fa-plane', '交通': 'fa-solid fa-train', '其他': 'fa-solid fa-ellipsis' }; return dict[cat] || 'fa-solid fa-location-dot'; };
-        const getCategoryBadgeClass = (cat) => { const dict = { '景點': 'bg-sky-50 text-sky-700', '住宿': 'bg-emerald-50 text-emerald-700', '美食': 'bg-amber-50 text-amber-700', '購物': 'bg-rose-50 text-rose-700', '航班': 'bg-indigo-50 text-indigo-700', '交通': 'bg-sky-100 text-sky-800', '其他': 'bg-slate-100 text-slate-700' }; return dict[cat] || 'bg-slate-100'; };
+        const getCategoryBadgeClass = (cat) => { const dict = { '景點': 'bg-sky-50 text-sky-700', '住宿': 'bg-emerald-50 text-emerald-700', '美食': 'bg-amber-50 text-amber-700', '購物': 'bg-rose-50 text-rose-700', '航班': 'bg-indigo-50 text-indigo-700', '交通': 'bg-slate-100 text-slate-700', '其他': 'bg-slate-100 text-slate-700' }; return dict[cat] || 'bg-slate-100'; };
         const getTransitIcon = (type) => { if (type === '步行') return 'fa-solid fa-person-walking'; if (type === '大眾運輸') return 'fa-solid fa-bus'; return 'fa-solid fa-car'; };
 
         const openAddModal = (target) => {
@@ -508,22 +574,10 @@
           modalTarget.value = 'itinerary'; isEditing.value = true; editingId.value = item.id; confirmDelete.value = false; modalTitle.value = '編輯行程資訊'; form.value.itinerary = { ...item }; showModal.value = true;
         };
 
-        // 開啟編輯記帳明細（公帳與私帳分開處理）
         const openEditExpenseModal = (exp, mode) => {
-          isEditing.value = true; 
-          editingId.value = exp.id; 
-          confirmDelete.value = false; 
-          showModal.value = true;
-          
-          if (mode === 'public') {
-            modalTarget.value = 'expense_edit'; 
-            modalTitle.value = '編輯公帳消費紀錄'; 
-            form.value.expenseEdit = { name: exp.name, payer: exp.payer, currency: exp.origCurrency, amount: exp.origAmount };
-          } else {
-            modalTarget.value = 'private_expense_edit'; 
-            modalTitle.value = '編輯私帳消費紀錄'; 
-            form.value.privateExpenseEdit = { name: exp.name, currency: exp.origCurrency, amount: exp.origAmount };
-          }
+          isEditing.value = true; editingId.value = exp.id; confirmDelete.value = false; showModal.value = true;
+          if (mode === 'public') { modalTarget.value = 'expense_edit'; modalTitle.value = '編輯公帳消費紀錄'; form.value.expenseEdit = { name: exp.name, payer: exp.payer, currency: exp.origCurrency, amount: exp.origAmount }; } 
+          else { modalTarget.value = 'private_expense_edit'; modalTitle.value = '編輯私帳消費紀錄'; form.value.privateExpenseEdit = { name: exp.name, currency: exp.origCurrency, amount: exp.origAmount }; }
         };
 
         const handleImageUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { form.value.shopping.img = event.target.result; }; reader.readAsDataURL(file); };
@@ -542,28 +596,21 @@
             const idx = expenses.value.findIndex(e => e.id === editingId.value);
             if (idx !== -1) {
               const amt = Number(form.value.expenseEdit.amount);
-              expenses.value[idx].name = form.value.expenseEdit.name;
-              expenses.value[idx].payer = form.value.expenseEdit.payer;
-              expenses.value[idx].origCurrency = form.value.expenseEdit.currency;
-              expenses.value[idx].origAmount = amt;
+              expenses.value[idx].name = form.value.expenseEdit.name; expenses.value[idx].payer = form.value.expenseEdit.payer; expenses.value[idx].origCurrency = form.value.expenseEdit.currency; expenses.value[idx].origAmount = amt;
               expenses.value[idx].amountTwd = form.value.expenseEdit.currency === 'JPY' ? Math.round(amt * fxRateGlobal.value) : amt;
             }
           } else if (target === 'private_expense_edit') {
-            // ⭐儲存個人私帳編輯結果
             if (!form.value.privateExpenseEdit.name.trim() || !form.value.privateExpenseEdit.amount) return alert('請填寫私帳項目與金額');
             const idx = privateExpenses.value.findIndex(e => e.id === editingId.value);
             if (idx !== -1) {
               const amt = Number(form.value.privateExpenseEdit.amount);
-              privateExpenses.value[idx].name = form.value.privateExpenseEdit.name;
-              privateExpenses.value[idx].origCurrency = form.value.privateExpenseEdit.currency;
-              privateExpenses.value[idx].origAmount = amt;
+              privateExpenses.value[idx].name = form.value.privateExpenseEdit.name; privateExpenses.value[idx].origCurrency = form.value.privateExpenseEdit.currency; privateExpenses.value[idx].origAmount = amt;
               privateExpenses.value[idx].amountTwd = form.value.privateExpenseEdit.currency === 'JPY' ? Math.round(amt * fxRateGlobal.value) : amt;
             }
           }
           showModal.value = false;
         };
 
-        // 觸發確認方框（同時相容公帳與私帳欄位判定）
         const previewQuickExpense = (mode) => {
           if (mode === 'public') {
             if (!quickExpense.value.name.trim() || !quickExpense.value.amount) return alert('請填寫項目名稱與金額喔！');
@@ -575,34 +622,16 @@
           showExpenseConfirm.value = true; 
         };
 
-        // 經確認方框按下「確認新增」後，正式寫入資料庫
         const confirmAddExpense = () => {
           const isPub = confirmExpenseData.value.type === 'public';
           const amt = confirmExpenseData.value.amount;
           const twd = confirmExpenseData.value.currency === 'JPY' ? Math.round(amt * fxRateGlobal.value) : amt;
-
-          const newObj = {
-            id: Date.now().toString(),
-            name: confirmExpenseData.value.name,
-            origCurrency: confirmExpenseData.value.currency,
-            origAmount: amt,
-            amountTwd: twd,
-            date: days[selectedDayIdx.value].fullDate 
-          };
-
-          if (isPub) {
-            newObj.payer = confirmExpenseData.value.payer;
-            expenses.value.unshift(newObj);
-            quickExpense.value.name = ''; quickExpense.value.amount = '';
-          } else {
-            newObj.payer = '個人';
-            privateExpenses.value.unshift(newObj);
-            quickPrivateExpense.value.name = ''; quickPrivateExpense.value.amount = '';
-          }
+          const newObj = { id: Date.now().toString(), name: confirmExpenseData.value.name, origCurrency: confirmExpenseData.value.currency, origAmount: amt, amountTwd: twd, date: days[selectedDayIdx.value].fullDate };
+          if (isPub) { newObj.payer = confirmExpenseData.value.payer; expenses.value.unshift(newObj); quickExpense.value.name = ''; quickExpense.value.amount = ''; } 
+          else { newObj.payer = '個人'; privateExpenses.value.unshift(newObj); quickPrivateExpense.value.name = ''; quickPrivateExpense.value.amount = ''; }
           showExpenseConfirm.value = false;
         };
 
-        // Modal中統一的刪除確認器
         const deleteModalItem = () => {
           if (modalTarget.value === 'itinerary') { itineraries.value = itineraries.value.filter(i => i.id !== editingId.value); } 
           else if (modalTarget.value === 'expense_edit') { expenses.value = expenses.value.filter(e => e.id !== editingId.value); }
@@ -624,11 +653,11 @@
         onMounted(() => { loadSavedData(); });
 
         return {
-          activeTab, expenseSubTab, selectedDayIdx, days, currentDayItinerary, shoppingList, expenses, privateExpenses, totalExpensesTwd, totalPrivateExpensesTwd,
+          activeTab, expenseSubTab, selectedDayIdx, days, currentDayItinerary, shoppingList, expenses, privateExpenses, totalExpensesTwd, totalPrivateExpensesTwd, rainySpots,
           showModal, showExpenseConfirm, modalTitle, modalTarget, form, isEditing, confirmDelete, fxCalc, fxRateGlobal, payersList, quickExpense, quickPrivateExpense, confirmExpenseData,
           calcToTwd, calcToJpy, openAddModal, openEditModal, openEditExpenseModal, handleImageUpload, submitForm, previewQuickExpense, confirmAddExpense, getPayerTotalTwd,
           moveItem, deleteItineraryItem, deleteModalItem, deleteShoppingItem, deleteExpense, deletePrivateExpense,
-          getCategoryColor, getCategoryIcon, getCategoryBadgeClass, getTransitIcon
+          getCategoryColor, getCategoryIcon, getCategoryBadgeClass, getTransitIcon, getAmPm, getStartTimeOnly, getDurationText, getCategoryTextColor
         };
       }
     }).mount('#app');
