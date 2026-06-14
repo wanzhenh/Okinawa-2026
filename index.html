@@ -160,7 +160,7 @@
               </div>
 
               <div v-for="(spot, index) in getRainySpots(region)" :key="'map-'+spot.id" 
-                   class="absolute w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white/80 z-10 transition-transform hover:scale-110 text-white"
+                   class="absolute w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white z-10 transition-transform hover:scale-110 text-white"
                    :class="spot.color"
                    :style="{ left: spot.mapX + '%', top: spot.mapY + '%', transform: 'translate(-50%, -50%)' }">
                 <span class="text-[10px] font-black">{{ index + 1 }}</span>
@@ -559,7 +559,7 @@
         const quickPrivateExpense = ref({ name: '', amount: '', currency: 'JPY' }); 
         const confirmExpenseData = ref({ type: 'public', name: '', payer: '', currency: 'JPY', amount: 0 });
 
-        // ⭐ 完整 19 個雨天備案資料（含泊港漁市場）
+        // ⭐ 確保第19個景點(泊港漁市場)與所有自訂照片完全載入
         const rainySeedData = [
           { id: 'r1', region: '北區', category: '參觀', name: 'Orion 啤酒廠', en: 'Orion Happy Park', icon: 'fa-solid fa-beer-mug-empty', color: 'bg-amber-400', mapX: 60, mapY: 30, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV4LcHg6HKm9xpFEWFDaBZMz64IWuct_sUIQ&s', desc: '沖繩在地代表性啤酒 Orion 的觀光工廠。遊客可以親眼看到現代化且自動化的啤酒瓶裝與罐裝生產線，了解啤酒的釀造過程，參觀結束後還能品嚐現釀的裝桶新鮮啤酒。', adv: '導覽全程在室內廊道與展區進行，完全不受天候影響。', ticket: '大人：1,000 日圓 (約台幣 210) — 含 2 杯現釀啤酒 / 兒童：300 日圓', notes: '開車的駕駛員以及未成年者不可飲酒（現場提供茶飲）。必須提前在官網預約。' },
           { id: 'r2', region: '北區', category: '參觀', name: '御菓子御殿 (讀谷本店)', en: 'Okashigoten Yomitan', icon: 'fa-solid fa-cookie-bite', color: 'bg-purple-500', mapX: 30, mapY: 70, img: 'https://www.okashigoten.co.jp/cms/wp-content/themes/okashigoten/img/travel/pic_3.jpg', desc: '沖繩最著名的伴手禮「紅芋塔」的大本營。館內可以透過玻璃窗親眼看到紅芋塔在自動化產線上一顆顆產出的療癒過程，並販售各式各樣的限定糕點。', adv: '一日遊的極佳中繼站，開車停好後即可進入室內吹冷氣、試吃伴手禮，完全不淋雨。', ticket: '免費入館 (消費另計)', notes: '本店設有海景餐廳，室內用餐空間舒適。' },
@@ -579,7 +579,7 @@
           { id: 'r16', region: '南區', category: 'DIY', name: '首里琉染', en: 'Shuri Ryusen', icon: 'fa-solid fa-palette', color: 'bg-pink-400', mapX: 65, mapY: 30, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx9ernjCRv9u5mhiBIlqTyebvAWFZwDDs7Xw&s', desc: '利用沖繩天然「珊瑚化石」斷面進行獨特拓印染工藝的傳統工坊。', adv: '體驗全程在室內日式榻榻米或工作桌進行，極具治癒感。', ticket: '大人：3,300 日圓 / 兒童：2,750 日圓 (含材料)', notes: '強烈建議提前預約，成品當天可帶走。' },
           { id: 'r17', region: '南區', category: '放鬆', name: '琉球溫泉 龍神之湯', en: 'Ryujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-sky-500', mapX: 15, mapY: 85, img: 'https://www.resorts.co.jp/upload/tenant_1/44417186e9f7477a585c88afcc867d16.jpg', desc: '瀨長島飯店內的頂級天然溫泉，可邊泡湯邊看飛機起降。', adv: '設有寬敞的室內大浴場，微涼的雨天泡溫泉別有風味。', ticket: '大人約 1,700 日圓 / 兒童 740 日圓', notes: '瀨長島戶外商場雨天濕滑，建議雨天來此專攻泡湯即可。' },
           { id: 'r18', region: '南區', category: '放鬆', name: '天然溫泉佐敷 猿人之湯', en: 'Sarujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-orange-400', mapX: 85, mapY: 50, img: 'https://image.kkday.com/v2/image/get/c_fit%2Cq_55%2Ct_webp%2Cw_960/s1.kkday.com/product_284834/20250430055058_xK6Dg/png', desc: '位於山丘飯店內的保濕茶褐色天然溫泉，具美肌功效。', adv: '觀景大浴場為室內大片玻璃設計，可看雨景泡湯。', ticket: '大人約 1,850 日圓 / 兒童 750 日圓', notes: '位於山丘上，雨天開車上山請放慢車速。' },
-          { id: 'r19', region: '南區', category: '美食', name: '泊港漁市場', en: 'Tomari Iyumachi', icon: 'fa-solid fa-fish', color: 'bg-cyan-600', mapX: 42, mapY: 38, img: 'https://hanblog.tw/wp-content/uploads/2025/06/collage-2.jpg', desc: '位於那霸港附近的專業批發兼零售漁市場。直屬沖繩縣漁業合作社，主打當天捕撈、新鮮直送海鮮，著名的是現場能買到便宜新鮮鮪魚刺身與生蠔等。', adv: '全室內市場設計，上方有完整遮棚，不用撐傘可舒適穿梭各攤位大啖海鮮。', ticket: '免費入場 (消費另計)', notes: '這裡主要是外帶或攤位旁現吃。漁市場大清早6點就開門，傍晚過後許多攤位就會陸續收攤！' }
+          { id: 'r19', region: '南區', category: '美食', name: '泊港漁市場', en: 'Tomari Iyumachi', icon: 'fa-solid fa-fish', color: 'bg-cyan-600', mapX: 42, mapY: 38, img: 'https://hanblog.tw/wp-content/uploads/2025/06/collage-2.jpg', desc: '位於那霸港附近的專業批發兼零售漁市場。直屬沖繩縣漁業合作社，主打當天捕撈、新鮮直送海鮮，著名的是現場能買到便宜新鮮鮪魚刺身與生蠔等。', adv: '全室內市場設計，上方有完整遮棚，不用撐傘可舒適穿梭各攤位大啖海鮮。', ticket: '免費入場 (消費另計)', notes: '這裡主要是外帶或攤位旁現吃。漁市場大清早6點就開門，傍晚過後許多攤位就會陸續收攤！' },
         ];
 
         const itinerarySeed = [
@@ -615,12 +615,12 @@
 
         const loadSavedData = () => {
           try {
-            // ⭐ 強制更新版本號 v18，確保 19 個景點能被完全載入並覆蓋舊快取
-            const savedItinerary = localStorage.getItem('ok_itinerary_final_v18');
-            const savedShopping = localStorage.getItem('ok_shopping_v18');
-            const savedExpenses = localStorage.getItem('ok_expenses_v18');
-            const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v18'); 
-            const savedRainy = localStorage.getItem('ok_rainy_v18');
+            // ⭐ 強制更新版本號 v17，防止舊版快取資料損毀導致白畫面
+            const savedItinerary = localStorage.getItem('ok_itinerary_final_v17');
+            const savedShopping = localStorage.getItem('ok_shopping_v17');
+            const savedExpenses = localStorage.getItem('ok_expenses_v17');
+            const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v17'); 
+            const savedRainy = localStorage.getItem('ok_rainy_v17');
 
             if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
             if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
@@ -638,11 +638,11 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_final_v18', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v18', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v18', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v18', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_v18', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_final_v17', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v17', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v17', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v17', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_v17', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
         const currentDayItinerary = computed(() => { return itineraries.value.filter(item => item.dayIdx === selectedDayIdx.value); });
