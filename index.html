@@ -20,7 +20,6 @@
     .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
     
-    /* ⭐ 新增：卡片向四周放大的動畫特效 */
     @keyframes scaleUp {
       0% { transform: scale(0.9); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
@@ -161,10 +160,10 @@
               </div>
 
               <div v-for="(spot, index) in getRainySpots(region)" :key="'map-'+spot.id" 
-                   class="absolute w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md border-2 z-10 transition-transform hover:scale-110"
-                   :class="getBorderColorClass(spot.color)"
+                   class="absolute w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white z-10 transition-transform hover:scale-110 text-white"
+                   :class="spot.color"
                    :style="{ left: spot.mapX + '%', top: spot.mapY + '%', transform: 'translate(-50%, -50%)' }">
-                <span class="text-[10px] font-black text-slate-700">{{ index + 1 }}</span>
+                <span class="text-[10px] font-black">{{ index + 1 }}</span>
               </div>
             </div>
 
@@ -173,15 +172,17 @@
                    @click="openRainyDetail(spot)"
                    class="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 flex flex-col hover:shadow-md transition-shadow group relative">
                 
-                <div class="absolute top-1.5 left-1.5 w-[22px] h-[22px] bg-white/95 rounded-full flex items-center justify-center shadow-sm z-20 border border-slate-100">
-                  <span class="text-[11px] font-black text-slate-800">{{ index + 1 }}</span>
+                <div class="absolute top-1.5 left-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-md z-20 border-[1.5px] border-white/80 text-white" :class="spot.color">
+                  <span class="text-[11px] font-black">{{ index + 1 }}</span>
                 </div>
 
-                <div class="relative h-[85px] overflow-hidden flex items-center justify-center transition-transform group-hover:scale-[1.03]" :class="spot.color">
-                  <i :class="spot.icon" class="text-3xl text-white opacity-90 drop-shadow-md"></i>
+                <div class="relative h-[85px] overflow-hidden flex items-center justify-center transition-transform group-hover:scale-[1.03] bg-slate-100">
+                  <img v-if="spot.img" :src="spot.img" class="w-full h-full object-cover">
+                  <i v-else :class="spot.icon" class="text-3xl text-white opacity-90 drop-shadow-md"></i>
+                  <div v-if="!spot.img" class="absolute inset-0 z-[-1]" :class="spot.color"></div>
                 </div>
                 
-                <div class="p-2 flex-1 flex flex-col justify-between bg-white z-10 relative -mt-2 rounded-t-xl">
+                <div class="p-2 flex-1 flex flex-col justify-between bg-white z-10 relative -mt-2 rounded-t-xl border-b border-white">
                   <div>
                     <p class="text-[12px] font-bold text-slate-800 leading-tight truncate pr-1">{{ spot.name }}</p>
                     <p class="text-[9px] text-slate-400 font-light mt-0.5 truncate">{{ spot.en }}</p>
@@ -189,8 +190,8 @@
                   
                   <div class="mt-2.5 flex justify-between items-center border-t border-slate-50 pt-1.5">
                     <span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">{{ spot.category }}</span>
-                    <span class="text-[10px] text-[#0077b6] flex items-center bg-sky-50 px-2 py-1 rounded-md">
-                      <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="text-[10px] text-[#0077b6] flex items-center bg-sky-50 px-2 py-1 rounded-md hover:bg-sky-100 transition-colors">
+                      <i class="fa-solid fa-diamond-turn-right mr-1"></i>導航
                     </span>
                   </div>
                 </div>
@@ -328,7 +329,7 @@
             </div>
           </div>
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-            <p class="text-xs font-bold text-slate-500 mb-3"><i class="fa-solid fa-bag-shopping mr-1"></i>新增個人私帳</p>
+            <p class="text-xs font-bold text-slate-500 mb-3"><i class="fa-solid fa-bag-shopping mr-1"></i>新增個人私帳 (伴手禮/紀念品)</p>
             <div class="space-y-3">
               <div><input type="text" v-model="quickPrivateExpense.name" placeholder="項目名稱 (例如：御菓子御殿紅薯塔)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none focus:border-teal-500"></div>
               <div><label class="block text-[10px] text-slate-400 mb-1">選擇輸入幣別</label><select v-model="quickPrivateExpense.currency" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm outline-none font-bold text-teal-600"><option value="JPY">日幣 (¥)</option><option value="TWD">台幣 ($)</option></select></div>
@@ -361,11 +362,16 @@
     <div v-if="showRainyDetailModal && selectedRainySpot" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-up relative">
         
-        <div class="relative h-[140px] flex flex-col items-center justify-center" :class="selectedRainySpot.color">
-          <i :class="selectedRainySpot.icon" class="text-6xl text-white opacity-95 drop-shadow-lg mb-2 transform hover:scale-110 transition-transform"></i>
-          <span class="bg-black/20 backdrop-blur-md px-3 py-1 rounded-full text-[11px] text-white font-bold tracking-widest">{{ selectedRainySpot.category }}</span>
+        <div class="relative h-[160px] flex flex-col items-center justify-center overflow-hidden bg-slate-100">
+          <img v-if="selectedRainySpot.img" :src="selectedRainySpot.img" class="absolute inset-0 w-full h-full object-cover">
+          <div v-if="selectedRainySpot.img" class="absolute inset-0 bg-black/30"></div> 
           
-          <button @click="closeRainyDetail" class="absolute top-3 right-3 w-8 h-8 bg-black/20 text-white rounded-full flex items-center justify-center hover:bg-black/40 backdrop-blur-md transition-colors">
+          <div v-if="!selectedRainySpot.img" class="absolute inset-0" :class="selectedRainySpot.color"></div>
+          
+          <i v-if="!selectedRainySpot.img" :class="selectedRainySpot.icon" class="text-6xl text-white opacity-95 drop-shadow-lg mb-2 transform hover:scale-110 transition-transform relative z-10"></i>
+          <span class="bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-[11px] text-white font-bold tracking-widest relative z-10 shadow-sm border border-white/20">{{ selectedRainySpot.category }}</span>
+          
+          <button @click="closeRainyDetail" class="absolute top-3 right-3 w-8 h-8 bg-black/30 text-white rounded-full flex items-center justify-center hover:bg-black/50 backdrop-blur-md transition-colors z-20">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -374,7 +380,7 @@
           <h3 class="text-2xl font-black text-slate-800 leading-tight mb-0.5">{{ selectedRainySpot.name }}</h3>
           <p class="text-[11px] text-slate-400 font-light mb-5 tracking-wide uppercase">{{ selectedRainySpot.en }}</p>
 
-          <div class="space-y-5 text-[13px] text-slate-600 leading-relaxed">
+          <div class="space-y-4 text-[13px] text-slate-600 leading-relaxed">
             <div class="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
               <strong class="text-slate-800 flex items-center mb-1.5 text-[14px]">
                 <div class="w-6 h-6 rounded-full bg-blue-50 text-[#0077b6] flex items-center justify-center mr-2"><i class="fa-regular fa-compass"></i></div>景點介紹
@@ -469,6 +475,7 @@
             <div><label class="block text-xs font-bold text-slate-500 mb-1">所屬區域</label><select v-model="form.rainyEdit.region" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option value="北區">北區</option><option value="中區">中區</option><option value="南區">南區</option></select></div>
             <div><label class="block text-xs font-bold text-slate-500 mb-1">分類標籤</label><input type="text" v-model="form.rainyEdit.category" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
           </div>
+          <div><label class="block text-xs font-bold text-slate-500 mb-1">圖片網址</label><input type="text" v-model="form.rainyEdit.img" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">景點介紹</label><textarea v-model="form.rainyEdit.desc" rows="2" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></textarea></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">雨天優勢</label><textarea v-model="form.rainyEdit.adv" rows="2" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></textarea></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">門票費用</label><input type="text" v-model="form.rainyEdit.ticket" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
@@ -513,7 +520,6 @@
         const showModal = ref(false);
         const showExpenseConfirm = ref(false); 
         
-        // ⭐ 大卡片 Modal 控制狀態
         const showRainyDetailModal = ref(false);
         const selectedRainySpot = ref(null);
 
@@ -546,32 +552,34 @@
           shopping: { name: '', location: '', img: '' },
           expenseEdit: { name: '', payer: '', currency: 'JPY', amount: '' },
           privateExpenseEdit: { name: '', currency: 'JPY', amount: '' },
-          rainyEdit: { name: '', category: '', region: '', desc: '', adv: '', ticket: '', notes: '' }
+          rainyEdit: { name: '', category: '', region: '', desc: '', adv: '', ticket: '', notes: '', img: '' }
         });
 
         const quickExpense = ref({ name: '', amount: '', payer: '婉禎', currency: 'JPY' });
         const quickPrivateExpense = ref({ name: '', amount: '', currency: 'JPY' }); 
         const confirmExpenseData = ref({ type: 'public', name: '', payer: '', currency: 'JPY', amount: 0 });
 
+        // ⭐ 確保第19個景點(泊港漁市場)與所有自訂照片完全載入
         const rainySeedData = [
-          { id: 'r1', region: '北區', category: '參觀', name: 'Orion 啤酒廠', en: 'Orion Happy Park', icon: 'fa-solid fa-beer-mug-empty', color: 'bg-amber-400', mapX: 60, mapY: 30, desc: '沖繩在地代表性啤酒 Orion 的觀光工廠。遊客可以親眼看到現代化且自動化的啤酒瓶裝與罐裝生產線，了解啤酒的釀造過程，參觀結束後還能品嚐現釀的裝桶新鮮啤酒。', adv: '導覽全程在室內廊道與展區進行，完全不受天候影響。', ticket: '大人：1,000 日圓 (約台幣 210) — 含 2 杯現釀啤酒 / 兒童：300 日圓', notes: '開車的駕駛員以及未成年者不可飲酒（現場提供茶飲）。必須提前在官網預約。' },
-          { id: 'r2', region: '北區', category: '參觀', name: '御菓子御殿 (讀谷本店)', en: 'Okashigoten Yomitan', icon: 'fa-solid fa-cookie-bite', color: 'bg-purple-500', mapX: 30, mapY: 70, desc: '沖繩最著名的伴手禮「紅芋塔」的大本營。館內可以透過玻璃窗親眼看到紅芋塔在自動化產線上一顆顆產出的療癒過程，並販售各式各樣的限定糕點。', adv: '一日遊的極佳中繼站，開車停好後即可進入室內吹冷氣、試吃伴手禮，完全不淋雨。', ticket: '免費入館 (消費另計)', notes: '本店設有海景餐廳，室內用餐空間舒適。' },
-          { id: 'r3', region: '中區', category: '放鬆', name: '溫海水 Spa (宜野座)', en: 'TAPIC Thalasso Center', icon: 'fa-solid fa-water', color: 'bg-cyan-500', mapX: 80, mapY: 20, desc: '日本少有的全天候溫海水水療中心。利用加熱後的純淨沖繩海水分成多種功能按摩水池，非常適合消除旅途疲勞。', adv: '全室內溫水設施，即便外面下大雨，裡面依然溫暖舒適，且可穿著泳衣一同泡湯。', ticket: '大人：約 2,500 日圓 / 兒童：約 1,300 日圓', notes: '需自備泳衣與泳帽。' },
-          { id: 'r4', region: '中區', category: '購物', name: '永旺夢樂城沖繩來客夢', en: 'AEON MALL Rycom', icon: 'fa-solid fa-bag-shopping', color: 'bg-rose-500', mapX: 65, mapY: 60, desc: '沖繩面積最大、店鋪數最多的旗艦級購物中心。一進大廳就會看到巨型室內水族箱，館內涵蓋國際服飾、日系雜貨與電器行。', adv: '規模大到可以當作全天的避雨基地，從地下停車場到商場內部皆有遮蔽。', ticket: '免費入館', notes: '由於商場極大，建議一進去先拿地圖鎖定目標。' },
-          { id: 'r5', region: '中區', category: '購物', name: '浦添西海岸 PARCO CITY', en: 'PARCO CITY', icon: 'fa-solid fa-store', color: 'bg-teal-500', mapX: 45, mapY: 85, desc: '近年新開幕的臨海大型綜合商場。主打引進首次進駐沖繩的潮流品牌與精品，內部設計極具現代感。', adv: '全室內設計，寬敞明亮的室內環境與極高的重複逛街度，是完美的雨天備案。', ticket: '免費入館', notes: '距離那霸市區車程算近。' },
-          { id: 'r6', region: '中區', category: 'DIY', name: '琉球村', en: 'Ryukyu Mura', icon: 'fa-solid fa-house-chimney', color: 'bg-orange-500', mapX: 35, mapY: 30, desc: '將沖繩古代傳統民家完整移築的主題公園，提供多達數十種傳統工藝體驗，如彩繪招福獅。', adv: '雖然整體在戶外，但傳統工藝 DIY 體驗區皆設有遮棚或位於室內。', ticket: '大人 1,500 日圓 / 兒童 750 日圓 (DIY費用另計)', notes: '移動於各民家之間仍需撐傘，建議穿著方便穿脫的鞋子。' },
-          { id: 'r7', region: '中區', category: 'DIY', name: 'Gala 青海', en: 'Gala Aoiumi', icon: 'fa-solid fa-droplet', color: 'bg-sky-400', mapX: 20, mapY: 45, desc: '位於讀谷村海邊的製鹽與工藝綜合園區。除了觀看海水製鹽，更以高自由度的手作體驗聞名（吹玻璃、陶藝）。', adv: '手作體驗工坊皆在室內屋頂下進行，不會受到降雨干擾。', ticket: '免費入園 (玻璃吹製體驗約 3,000 日圓)', notes: '園區內有著名的「海鹽冰淇淋」，非常推薦嘗試。' },
-          { id: 'r8', region: '南區', category: '購物', name: 'iias 沖繩豐崎', en: 'iias Toyosaki', icon: 'fa-solid fa-fish', color: 'bg-blue-400', mapX: 25, mapY: 80, desc: '結合購物與「DMM Kariyushi 水族館」的大型商場。水族館主打最新數位影像科技與魔幻燈光。', adv: '不用撐傘就能在同棟建築內完成「逛街、看水族館、吃美食」所有願望。', ticket: '商場免費。水族館大人 2,400 日圓 / 兒童 1,500 日圓', notes: '距離那霸機場車程約 20 分鐘。' },
-          { id: 'r9', region: '南區', category: '購物', name: 'DFS 沖繩 T 廣場', en: 'T Galleria by DFS', icon: 'fa-solid fa-gem', color: 'bg-slate-800', mapX: 55, mapY: 35, desc: '日本國內唯一路面免稅店，匯集頂級奢侈品牌。館內更引進了適合小朋友放電的 teamLab 沉浸式展覽。', adv: '大人可以在免稅店血拼，小朋友可以到 teamLab 放電，各取所需。', ticket: '免稅店免費。teamLab 大人約 2,000 日圓', notes: '與單軌電車「歌町站」有空橋相連，出站入館完全不淋雨。' },
-          { id: 'r10', region: '南區', category: '購物', name: '沖繩 ASHIBINAA Outlet', en: 'ASHIBINAA Outlet', icon: 'fa-solid fa-tags', color: 'bg-emerald-500', mapX: 30, mapY: 75, desc: '沖繩唯一的名牌折扣城，聚集超過百家國際名牌與運動品牌。', adv: '店鋪與店鋪之間的走廊上方大多設有遮雨頂棚。', ticket: '免費入館', notes: '風雨過大時走廊可能會有雨水飄入，請務必帶隨身雨具。' },
-          { id: 'r11', region: '南區', category: '購物', name: 'San-A 那霸 Main Place', en: 'San-A Naha Main Place', icon: 'fa-solid fa-cart-shopping', color: 'bg-red-400', mapX: 50, mapY: 35, desc: '位於那霸市新都心的老牌全方位商場。藥妝、服飾與超大型超市一應俱全。', adv: '全室內大樓，搭單軌電車即可輕鬆抵達。', ticket: '免費入館', notes: '適合在那霸市區快速補貨藥妝與零食的旅客。' },
-          { id: 'r12', region: '南區', category: '購物', name: '小祿 Aeon (那霸店)', en: 'AEON Naha', icon: 'fa-solid fa-basket-shopping', color: 'bg-fuchsia-500', mapX: 40, mapY: 55, desc: '與單軌電車站共構的大型綜合超市商場。一樓是極大的生鮮超市，樓上有日系服飾與百元商店。', adv: '與單軌「小祿站」有室內聯絡通道直接相連，免開車、免撐傘。', ticket: '免費入館', notes: '旁邊就是小祿通堂拉麵和大國藥妝。' },
-          { id: 'r13', region: '南區', category: '購物', name: '國際通商店街', en: 'Kokusai-dori Street', icon: 'fa-solid fa-shop', color: 'bg-amber-500', mapX: 45, mapY: 45, desc: '沖繩最熱鬧的奇蹟一英哩，開滿名產店與居酒屋。', adv: '中段有許多「有頂棚的傳統商店街」（如平和通），走進去就像有防護罩一樣。', ticket: '免費參觀', notes: '雨天走在主街上需撐傘，地面較滑。' },
-          { id: 'r14', region: '南區', category: '參觀', name: '玉泉洞', en: 'Gyokusendo Cave', icon: 'fa-solid fa-mountain', color: 'bg-stone-500', mapX: 75, mapY: 75, desc: '歷經 30 萬年歲月形成的地下鐘乳洞。洞內滿佈壯觀的鐘乳石與地下清泉。', adv: '完全位於「地底深處」，地面下傾盆大雨也跟它完全無關！是最硬核的避雨景點。', ticket: '大人：2,000 日圓 / 兒童：1,000 日圓 (全區通用)', notes: '洞內長年濕度高有階梯，雨天步行務必穿著防滑鞋子。' },
-          { id: 'r15', region: '南區', category: '參觀', name: '沖繩縣立博物館・美術館', en: 'Prefectural Museum', icon: 'fa-solid fa-building-columns', color: 'bg-indigo-500', mapX: 48, mapY: 28, desc: '外觀模仿琉球傳統城牆的白色前衛建築。詳盡展示沖繩從古琉球到現代藝術的文化演變。', adv: '充滿文藝氣息的全室內展館，是躲大雨並了解沖繩文化的高質感景點。', ticket: '博物館大人 540 日圓 / 美術館大人 400 日圓', notes: '特展需另外購票。' },
-          { id: 'r16', region: '南區', category: 'DIY', name: '首里琉染', en: 'Shuri Ryusen', icon: 'fa-solid fa-palette', color: 'bg-pink-400', mapX: 65, mapY: 30, desc: '利用沖繩天然「珊瑚化石」斷面進行獨特拓印染工藝的傳統工坊。', adv: '體驗全程在室內日式榻榻米或工作桌進行，極具治癒感。', ticket: '大人：3,300 日圓 / 兒童：2,750 日圓 (含材料)', notes: '強烈建議提前預約，成品當天可帶走。' },
-          { id: 'r17', region: '南區', category: '放鬆', name: '琉球溫泉 龍神之湯', en: 'Ryujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-sky-500', mapX: 15, mapY: 85, desc: '瀨長島飯店內的頂級天然溫泉，可邊泡湯邊看飛機起降。', adv: '設有寬敞的室內大浴場，微涼的雨天泡溫泉別有風味。', ticket: '大人約 1,700 日圓 / 兒童 740 日圓', notes: '瀨長島戶外商場雨天濕滑，建議雨天來此專攻泡湯即可。' },
-          { id: 'r18', region: '南區', category: '放鬆', name: '天然溫泉佐敷 猿人之湯', en: 'Sarujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-orange-400', mapX: 85, mapY: 50, desc: '位於山丘飯店內的保濕茶褐色天然溫泉，具美肌功效。', adv: '觀景大浴場為室內大片玻璃設計，可看雨景泡湯。', ticket: '大人約 1,850 日圓 / 兒童 750 日圓', notes: '位於山丘上，雨天開車上山請放慢車速。' },
+          { id: 'r1', region: '北區', category: '參觀', name: 'Orion 啤酒廠', en: 'Orion Happy Park', icon: 'fa-solid fa-beer-mug-empty', color: 'bg-amber-400', mapX: 60, mapY: 30, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV4LcHg6HKm9xpFEWFDaBZMz64IWuct_sUIQ&s', desc: '沖繩在地代表性啤酒 Orion 的觀光工廠。遊客可以親眼看到現代化且自動化的啤酒瓶裝與罐裝生產線，了解啤酒的釀造過程，參觀結束後還能品嚐現釀的裝桶新鮮啤酒。', adv: '導覽全程在室內廊道與展區進行，完全不受天候影響。', ticket: '大人：1,000 日圓 (約台幣 210) — 含 2 杯現釀啤酒 / 兒童：300 日圓', notes: '開車的駕駛員以及未成年者不可飲酒（現場提供茶飲）。必須提前在官網預約。' },
+          { id: 'r2', region: '北區', category: '參觀', name: '御菓子御殿 (讀谷本店)', en: 'Okashigoten Yomitan', icon: 'fa-solid fa-cookie-bite', color: 'bg-purple-500', mapX: 30, mapY: 70, img: 'https://www.okashigoten.co.jp/cms/wp-content/themes/okashigoten/img/travel/pic_3.jpg', desc: '沖繩最著名的伴手禮「紅芋塔」的大本營。館內可以透過玻璃窗親眼看到紅芋塔在自動化產線上一顆顆產出的療癒過程，並販售各式各樣的限定糕點。', adv: '一日遊的極佳中繼站，開車停好後即可進入室內吹冷氣、試吃伴手禮，完全不淋雨。', ticket: '免費入館 (消費另計)', notes: '本店設有海景餐廳，室內用餐空間舒適。' },
+          { id: 'r3', region: '中區', category: '放鬆', name: '溫海水 Spa (宜野座)', en: 'TAPIC Thalasso Center', icon: 'fa-solid fa-water', color: 'bg-cyan-500', mapX: 80, mapY: 20, img: 'https://res.klook.com/image/upload/u_activities:ijfuz40pxwybhnaotzoz,h_1.0,ar_960:460,c_scale,e_blur:10000/w_750,h_469,c_fill,q_85/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/ijfuz40pxwybhnaotzoz.jpg', desc: '日本少有的全天候溫海水水療中心。利用加熱後的純淨沖繩海水分成多種功能按摩水池，非常適合消除旅途疲勞。', adv: '全室內溫水設施，即便外面下大雨，裡面依然溫暖舒適，且可穿著泳衣一同泡湯。', ticket: '大人：約 2,500 日圓 / 兒童：約 1,300 日圓', notes: '需自備泳衣與泳帽。' },
+          { id: 'r4', region: '中區', category: '購物', name: '永旺夢樂城沖繩來客夢', en: 'AEON MALL Rycom', icon: 'fa-solid fa-bag-shopping', color: 'bg-rose-500', mapX: 65, mapY: 60, img: 'https://boysmom.life/wp-content/uploads/20171229214742_41.jpg', desc: '沖繩面積最大、店鋪數最多的旗艦級購物中心。一進大廳就會看到巨型室內水族箱，館內涵蓋國際服飾、日系雜貨與電器行。', adv: '規模大到可以當作全天的避雨基地，從地下停車場到商場內部皆有遮蔽。', ticket: '免費入館', notes: '由於商場極大，建議一進去先拿地圖鎖定目標。' },
+          { id: 'r5', region: '中區', category: '購物', name: '浦添西海岸 PARCO CITY', en: 'PARCO CITY', icon: 'fa-solid fa-store', color: 'bg-teal-500', mapX: 45, mapY: 85, img: 'https://pingu.blog/wp-content/uploads/2025/11/20251116181948_0_295c2a.jpg', desc: '近年新開幕的臨海大型綜合商場。主打引進首次進駐沖繩的潮流品牌與精品，內部設計極具現代感。', adv: '全室內設計，寬敞明亮的室內環境與極高的重複逛街度，是完美的雨天備案。', ticket: '免費入館', notes: '距離那霸市區車程算近。' },
+          { id: 'r6', region: '中區', category: 'DIY', name: '琉球村', en: 'Ryukyu Mura', icon: 'fa-solid fa-house-chimney', color: 'bg-orange-500', mapX: 35, mapY: 30, img: 'https://fupo.tw/webp/wp-content/uploads/2022/12/%E7%90%89%E7%90%83%E6%9D%91-54.jpg.webp', desc: '將沖繩古代傳統民家完整移築的主題公園，提供多達數十種傳統工藝體驗，如彩繪招福獅。', adv: '雖然整體在戶外，但傳統工藝 DIY 體驗區皆設有遮棚或位於室內。', ticket: '大人 1,500 日圓 / 兒童 750 日圓 (DIY費用另計)', notes: '移動於各民家之間仍需撐傘，建議穿著方便穿脫的鞋子。' },
+          { id: 'r7', region: '中區', category: 'DIY', name: 'Gala 青海', en: 'Gala Aoiumi', icon: 'fa-solid fa-droplet', color: 'bg-sky-400', mapX: 20, mapY: 45, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7pG1BoT4xVcLk6I2rul-t6bu64XnzgMwbBw&s', desc: '位於讀谷村海邊的製鹽與工藝綜合園區。除了觀看海水製鹽，更以高自由度的手作體驗聞名（吹玻璃、陶藝）。', adv: '手作體驗工坊皆在室內屋頂下進行，不會受到降雨干擾。', ticket: '免費入園 (玻璃吹製體驗約 3,000 日圓)', notes: '園區內有著名的「海鹽冰淇淋」，非常推薦嘗試。' },
+          { id: 'r8', region: '南區', category: '購物', name: 'iias 沖繩豐崎', en: 'iias Toyosaki', icon: 'fa-solid fa-fish', color: 'bg-blue-400', mapX: 25, mapY: 80, img: 'https://rocky.tw/wp-content/uploads/iias%E6%B2%96%E7%B9%A9%E8%B1%90%E5%B4%8E%E8%B3%BC%E7%89%A9%E4%B8%AD%E5%BF%83-%E5%B0%8F-58.jpg', desc: '結合購物與「DMM Kariyushi 水族館」的大型商場。水族館主打最新數位影像科技與魔幻燈光。', adv: '不用撐傘就能在同棟建築內完成「逛街、看水族館、吃美食」所有願望。', ticket: '商場免費。水族館大人 2,400 日圓 / 兒童 1,500 日圓', notes: '距離那霸機場車程約 20 分鐘。' },
+          { id: 'r9', region: '南區', category: '購物', name: 'DFS 沖繩 T 廣場', en: 'T Galleria by DFS', icon: 'fa-solid fa-gem', color: 'bg-slate-800', mapX: 55, mapY: 35, img: 'https://www.tabirai.net/tabirai-uploader/img/0032730/s9_0032730.jpg', desc: '日本國內唯一路面免稅店，匯集頂級奢侈品牌。館內更引進了適合小朋友放電的 teamLab 沉浸式展覽。', adv: '大人可以在免稅店血拼，小朋友可以到 teamLab 放電，各取所需。', ticket: '免稅店免費。teamLab 大人約 2,000 日圓', notes: '與單軌電車「歌町站」有空橋相連，出站入館完全不淋雨。' },
+          { id: 'r10', region: '南區', category: '購物', name: '沖繩 ASHIBINAA Outlet', en: 'ASHIBINAA Outlet', icon: 'fa-solid fa-tags', color: 'bg-emerald-500', mapX: 30, mapY: 75, img: 'https://static.gltjp.com/glt/data/directory/15000/14433/20241101_175505_26f87ea4_w640.webp', desc: '沖繩唯一的名牌折扣城，聚集超過百家國際名牌與運動品牌。', adv: '店鋪與店鋪之間的走廊上方大多設有遮雨頂棚。', ticket: '免費入館', notes: '風雨過大時走廊可能會有雨水飄入，請務必帶隨身雨具。' },
+          { id: 'r11', region: '南區', category: '購物', name: 'San-A 那霸 Main Place', en: 'San-A Naha Main Place', icon: 'fa-solid fa-cart-shopping', color: 'bg-red-400', mapX: 50, mapY: 35, img: 'https://www.tabirai.net/tabirai-uploader/img/0023627/s1_0023627.jpg', desc: '位於那霸市新都心的老牌全方位商場。藥妝、服飾與超大型超市一應俱全。', adv: '全室內大樓，搭單軌電車即可輕鬆抵達。', ticket: '免費入館', notes: '適合在那霸市區快速補貨藥妝與零食的旅客。' },
+          { id: 'r12', region: '南區', category: '購物', name: '小祿 Aeon (那霸店)', en: 'AEON Naha', icon: 'fa-solid fa-basket-shopping', color: 'bg-fuchsia-500', mapX: 40, mapY: 55, img: 'https://rocky.tw/wp-content/uploads/20171121114025_55.jpg', desc: '與單軌電車站共構的大型綜合超市商場。一樓是極大的生鮮超市，樓上有日系服飾與百元商店。', adv: '與單軌「小祿站」有室內聯絡通道直接相連，免開車、免撐傘。', ticket: '免費入館', notes: '旁邊就是小祿通堂拉麵和大國藥妝。' },
+          { id: 'r13', region: '南區', category: '購物', name: '國際通商店街', en: 'Kokusai-dori Street', icon: 'fa-solid fa-shop', color: 'bg-amber-500', mapX: 45, mapY: 45, img: 'https://static.gltjp.com/glt/data/article/22000/21027/20250523_103029_bc70105e_w1920.webp', desc: '沖繩最熱鬧的奇蹟一英哩，開滿名產店與居酒屋。', adv: '中段有許多「有頂棚的傳統商店街」（如平和通），走進去就像有防護罩一樣。', ticket: '免費參觀', notes: '雨天走在主街上需撐傘，地面較滑。' },
+          { id: 'r14', region: '南區', category: '參觀', name: '玉泉洞', en: 'Gyokusendo Cave', icon: 'fa-solid fa-mountain', color: 'bg-stone-500', mapX: 75, mapY: 75, img: 'https://s3-ap-northeast-1.amazonaws.com/thegate/2021/02/09/17/54/05/gyokusen_do.jpg', desc: '歷經 30 萬年歲月形成的地下鐘乳洞。洞內滿佈壯觀的鐘乳石與地下清泉。', adv: '完全位於「地底深處」，地面下傾盆大雨也跟它完全無關！是最硬核的避雨景點。', ticket: '大人：2,000 日圓 / 兒童：1,000 日圓 (全區通用)', notes: '洞內長年濕度高有階梯，雨天步行務必穿著防滑鞋子。' },
+          { id: 'r15', region: '南區', category: '參觀', name: '沖繩縣立博物館・美術館', en: 'Prefectural Museum', icon: 'fa-solid fa-building-columns', color: 'bg-indigo-500', mapX: 48, mapY: 28, img: 'https://www.tabirai.net/tabirai-uploader/img/0016683/s1_0016683.jpg', desc: '外觀模仿琉球傳統城牆的白色前衛建築。詳盡展示沖繩從古琉球到現代藝術的文化演變。', adv: '充滿文藝氣息的全室內展館，是躲大雨並了解沖繩文化的高質感景點。', ticket: '博物館大人 540 日圓 / 美術館大人 400 日圓', notes: '特展需另外購票。' },
+          { id: 'r16', region: '南區', category: 'DIY', name: '首里琉染', en: 'Shuri Ryusen', icon: 'fa-solid fa-palette', color: 'bg-pink-400', mapX: 65, mapY: 30, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx9ernjCRv9u5mhiBIlqTyebvAWFZwDDs7Xw&s', desc: '利用沖繩天然「珊瑚化石」斷面進行獨特拓印染工藝的傳統工坊。', adv: '體驗全程在室內日式榻榻米或工作桌進行，極具治癒感。', ticket: '大人：3,300 日圓 / 兒童：2,750 日圓 (含材料)', notes: '強烈建議提前預約，成品當天可帶走。' },
+          { id: 'r17', region: '南區', category: '放鬆', name: '琉球溫泉 龍神之湯', en: 'Ryujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-sky-500', mapX: 15, mapY: 85, img: 'https://www.resorts.co.jp/upload/tenant_1/44417186e9f7477a585c88afcc867d16.jpg', desc: '瀨長島飯店內的頂級天然溫泉，可邊泡湯邊看飛機起降。', adv: '設有寬敞的室內大浴場，微涼的雨天泡溫泉別有風味。', ticket: '大人約 1,700 日圓 / 兒童 740 日圓', notes: '瀨長島戶外商場雨天濕滑，建議雨天來此專攻泡湯即可。' },
+          { id: 'r18', region: '南區', category: '放鬆', name: '天然溫泉佐敷 猿人之湯', en: 'Sarujin-no-Yu', icon: 'fa-solid fa-hot-tub-person', color: 'bg-orange-400', mapX: 85, mapY: 50, img: 'https://image.kkday.com/v2/image/get/c_fit%2Cq_55%2Ct_webp%2Cw_960/s1.kkday.com/product_284834/20250430055058_xK6Dg/png', desc: '位於山丘飯店內的保濕茶褐色天然溫泉，具美肌功效。', adv: '觀景大浴場為室內大片玻璃設計，可看雨景泡湯。', ticket: '大人約 1,850 日圓 / 兒童 750 日圓', notes: '位於山丘上，雨天開車上山請放慢車速。' },
+          { id: 'r19', region: '南區', category: '美食', name: '泊港漁市場', en: 'Tomari Iyumachi', icon: 'fa-solid fa-fish', color: 'bg-cyan-600', mapX: 42, mapY: 38, img: 'https://hanblog.tw/wp-content/uploads/2025/06/collage-2.jpg', desc: '位於那霸港附近的專業批發兼零售漁市場。直屬沖繩縣漁業合作社，主打當天捕撈、新鮮直送海鮮，著名的是現場能買到便宜新鮮鮪魚刺身與生蠔等。', adv: '全室內市場設計，上方有完整遮棚，不用撐傘可舒適穿梭各攤位大啖海鮮。', ticket: '免費入場 (消費另計)', notes: '這裡主要是外帶或攤位旁現吃。漁市場大清早6點就開門，傍晚過後許多攤位就會陸續收攤！' },
         ];
 
         const itinerarySeed = [
@@ -606,32 +614,41 @@
         ];
 
         const loadSavedData = () => {
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v13');
-          const savedShopping = localStorage.getItem('ok_shopping_v13');
-          const savedExpenses = localStorage.getItem('ok_expenses_v13');
-          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v13'); 
-          const savedRainy = localStorage.getItem('ok_rainy_v13');
+          try {
+            // ⭐ 強制更新版本號 v17，防止舊版快取資料損毀導致白畫面
+            const savedItinerary = localStorage.getItem('ok_itinerary_final_v17');
+            const savedShopping = localStorage.getItem('ok_shopping_v17');
+            const savedExpenses = localStorage.getItem('ok_expenses_v17');
+            const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v17'); 
+            const savedRainy = localStorage.getItem('ok_rainy_v17');
 
-          if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
-          if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
-          if (savedExpenses) expenses.value = JSON.parse(savedExpenses);
-          if (savedPrivateExpenses) privateExpenses.value = JSON.parse(savedPrivateExpenses);
-          if (savedRainy) rainySpots.value = JSON.parse(savedRainy); else rainySpots.value = rainySeedData;
+            if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
+            if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
+            if (savedExpenses) expenses.value = JSON.parse(savedExpenses);
+            if (savedPrivateExpenses) privateExpenses.value = JSON.parse(savedPrivateExpenses);
+            if (savedRainy) rainySpots.value = JSON.parse(savedRainy); else rainySpots.value = rainySeedData;
+          } catch(e) {
+            console.error("資料載入異常，為避免白畫面已重置為預設資料", e);
+            itineraries.value = itinerarySeed;
+            shoppingList.value = [];
+            expenses.value = [];
+            privateExpenses.value = [];
+            rainySpots.value = rainySeedData;
+          }
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_final_v13', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v13', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v13', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v13', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_v13', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_final_v17', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v17', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v17', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v17', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_v17', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
         const currentDayItinerary = computed(() => { return itineraries.value.filter(item => item.dayIdx === selectedDayIdx.value); });
         
         const getRainySpots = (region) => { return rainySpots.value.filter(s => s.region === region); };
         
-        // ⭐ 開啟全螢幕大卡片
         const openRainyDetail = (spot) => {
           selectedRainySpot.value = spot;
           showRainyDetailModal.value = true;
@@ -649,7 +666,7 @@
         };
 
         const getBorderColorClass = (colorClass) => {
-          const map = { 'bg-amber-400':'border-amber-400', 'bg-purple-500':'border-purple-500', 'bg-cyan-500':'border-cyan-500', 'bg-rose-500':'border-rose-500', 'bg-teal-500':'border-teal-500', 'bg-sky-400':'border-sky-400', 'bg-orange-500':'border-orange-500', 'bg-blue-400':'border-blue-400', 'bg-red-400':'border-red-400', 'bg-slate-800':'border-slate-800', 'bg-emerald-500':'border-emerald-500', 'bg-fuchsia-500':'border-fuchsia-500', 'bg-sky-500':'border-sky-500', 'bg-orange-400':'border-orange-400', 'bg-stone-500':'border-stone-500', 'bg-indigo-500':'border-indigo-500', 'bg-pink-400':'border-pink-400' };
+          const map = { 'bg-amber-400':'border-amber-400', 'bg-purple-500':'border-purple-500', 'bg-cyan-500':'border-cyan-500', 'bg-rose-500':'border-rose-500', 'bg-teal-500':'border-teal-500', 'bg-sky-400':'border-sky-400', 'bg-orange-500':'border-orange-500', 'bg-blue-400':'border-blue-400', 'bg-red-400':'border-red-400', 'bg-slate-800':'border-slate-800', 'bg-emerald-500':'border-emerald-500', 'bg-fuchsia-500':'border-fuchsia-500', 'bg-sky-500':'border-sky-500', 'bg-orange-400':'border-orange-400', 'bg-stone-500':'border-stone-500', 'bg-indigo-500':'border-indigo-500', 'bg-pink-400':'border-pink-400', 'bg-cyan-600':'border-cyan-600' };
           return map[colorClass] || 'border-slate-300';
         };
 
@@ -675,24 +692,22 @@
           modalTarget.value = target; isEditing.value = false; confirmDelete.value = false; showModal.value = true;
           if (target === 'itinerary') { modalTitle.value = '新增自訂行程'; form.value.itinerary = { category: '景點', name: '', hours: '', ticket: '', flightNum: '', notes: '', transitType: '大眾運輸', transitTime: 15 }; }
           else if (target === 'shopping') { modalTitle.value = '新增想買清單'; form.value.shopping = { name: '', location: '', img: '' }; }
-          else if (target === 'rainy') { modalTitle.value = '新增雨天備案'; form.value.rainyEdit = { name: '', category: '景點', region: extraParam, desc: '', adv: '', ticket: '', notes: '' }; }
+          else if (target === 'rainy') { modalTitle.value = '新增雨天備案'; form.value.rainyEdit = { name: '', category: '景點', region: extraParam, desc: '', adv: '', ticket: '', notes: '', img: '' }; }
         };
 
         const openEditModal = (item) => { modalTarget.value = 'itinerary'; isEditing.value = true; editingId.value = item.id; confirmDelete.value = false; modalTitle.value = '編輯行程資訊'; form.value.itinerary = { ...item }; showModal.value = true; };
         
-        // 從全螢幕大卡片觸發編輯
         const triggerEditRainyFromDetail = () => {
           const spotToEdit = selectedRainySpot.value;
-          closeRainyDetail(); // 關閉大卡片
+          closeRainyDetail(); 
           isEditing.value = true; editingId.value = spotToEdit.id; confirmDelete.value = false; showModal.value = true;
           modalTarget.value = 'rainy_edit'; modalTitle.value = '編輯雨天備案'; 
-          form.value.rainyEdit = { name: spotToEdit.name, category: spotToEdit.category, region: spotToEdit.region, desc: spotToEdit.desc, adv: spotToEdit.adv, ticket: spotToEdit.ticket, notes: spotToEdit.notes };
+          form.value.rainyEdit = { name: spotToEdit.name, category: spotToEdit.category, region: spotToEdit.region, desc: spotToEdit.desc, adv: spotToEdit.adv, ticket: spotToEdit.ticket, notes: spotToEdit.notes, img: spotToEdit.img };
         };
         
-        // 從全螢幕大卡片觸發刪除
         const triggerDeleteRainyFromDetail = () => {
           const idToDelete = selectedRainySpot.value.id;
-          closeRainyDetail(); // 關閉大卡片
+          closeRainyDetail(); 
           deleteRainySpot(idToDelete);
         };
 
@@ -718,18 +733,13 @@
             if (isEditing.value) {
               const idx = rainySpots.value.findIndex(r => r.id === editingId.value);
               if (idx !== -1) {
-                rainySpots.value[idx].name = form.value.rainyEdit.name;
-                rainySpots.value[idx].category = form.value.rainyEdit.category;
-                rainySpots.value[idx].region = form.value.rainyEdit.region;
-                rainySpots.value[idx].desc = form.value.rainyEdit.desc;
-                rainySpots.value[idx].adv = form.value.rainyEdit.adv;
-                rainySpots.value[idx].ticket = form.value.rainyEdit.ticket;
-                rainySpots.value[idx].notes = form.value.rainyEdit.notes;
+                rainySpots.value[idx].name = form.value.rainyEdit.name; rainySpots.value[idx].category = form.value.rainyEdit.category; rainySpots.value[idx].region = form.value.rainyEdit.region;
+                rainySpots.value[idx].desc = form.value.rainyEdit.desc; rainySpots.value[idx].adv = form.value.rainyEdit.adv; rainySpots.value[idx].ticket = form.value.rainyEdit.ticket; rainySpots.value[idx].notes = form.value.rainyEdit.notes; rainySpots.value[idx].img = form.value.rainyEdit.img;
               }
             } else {
               rainySpots.value.push({ 
                 id: Date.now().toString(), name: form.value.rainyEdit.name, category: form.value.rainyEdit.category, region: form.value.rainyEdit.region, 
-                desc: form.value.rainyEdit.desc, adv: form.value.rainyEdit.adv, ticket: form.value.rainyEdit.ticket, notes: form.value.rainyEdit.notes,
+                desc: form.value.rainyEdit.desc, adv: form.value.rainyEdit.adv, ticket: form.value.rainyEdit.ticket, notes: form.value.rainyEdit.notes, img: form.value.rainyEdit.img,
                 icon: 'fa-solid fa-map-pin', color: 'bg-slate-400', mapX: Math.floor(Math.random() * 60 + 20), mapY: Math.floor(Math.random() * 60 + 20)
               });
             }
@@ -792,7 +802,7 @@
         const deleteExpense = (id) => { expenses.value = expenses.value.filter(e => e.id !== id); };
         const deletePrivateExpense = (id) => { privateExpenses.value = privateExpenses.value.filter(p => p.id !== id); };
         const deleteRainySpot = (id) => { 
-          if(confirm('確定要刪除這個雨天備案嗎？')) {
+          if(confirm('確定要刪除這個備案嗎？')) {
             rainySpots.value = rainySpots.value.filter(r => r.id !== id); 
           }
         };
@@ -803,7 +813,7 @@
           activeTab, expenseSubTab, selectedDayIdx, days, currentDayItinerary, shoppingList, expenses, privateExpenses, totalExpensesTwd, totalPrivateExpensesTwd, rainySpots, getRainySpots, getCurrentLocationStyle, getBorderColorClass, 
           showRainyDetailModal, selectedRainySpot, openRainyDetail, closeRainyDetail, triggerEditRainyFromDetail, triggerDeleteRainyFromDetail,
           showModal, showExpenseConfirm, modalTitle, modalTarget, form, isEditing, confirmDelete, fxCalc, fxRateGlobal, payersList, quickExpense, quickPrivateExpense, confirmExpenseData,
-          calcToTwd, calcToJpy, openAddModal, openEditModal, openEditExpenseModal, handleImageUpload, submitForm, previewQuickExpense, confirmAddExpense, getPayerTotalTwd,
+          calcToTwd, calcToJpy, openAddModal, openEditModal, openEditRainyModal, openEditExpenseModal, handleImageUpload, submitForm, previewQuickExpense, confirmAddExpense, getPayerTotalTwd,
           moveItem, deleteModalItem, deleteShoppingItem, deleteExpense, deletePrivateExpense, deleteRainySpot,
           getCategoryColor, getCategoryIcon, getCategoryBadgeClass, getTransitIcon, getAmPm, getStartTimeOnly, getDurationText, getCategoryTextColor
         };
