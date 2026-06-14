@@ -386,15 +386,7 @@
 
       <div class="flex-1 flex items-center justify-center w-full h-full relative overflow-hidden" 
            @touchstart="handleTouchStart" @touchend="handleTouchEnd">
-        
         <img :src="coupons[currentCouponIdx]" alt="Coupon" class="w-full h-full object-contain transition-transform duration-300 max-h-screen" />
-        
-        <button @click="prevCoupon" v-if="currentCouponIdx > 0" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/50 text-white rounded-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:bg-black/70 z-20 transition-all active:scale-95">
-          <i class="fa-solid fa-chevron-left text-lg pr-1"></i>
-        </button>
-        <button @click="nextCoupon" v-if="currentCouponIdx < coupons.length - 1" class="absolute right-3 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/50 text-white rounded-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:bg-black/70 z-20 transition-all active:scale-95">
-          <i class="fa-solid fa-chevron-right text-lg pl-1"></i>
-        </button>
       </div>
       
       <div class="p-6 text-center absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none">
