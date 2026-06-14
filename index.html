@@ -115,7 +115,7 @@
                     <p v-if="item.notes" class="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border-l-2 border-[#00b4d8] leading-relaxed"><i class="fa-regular fa-lightbulb mr-1 text-[#00b4d8]"></i>{{ item.notes }}</p>
                   </div>
                 </div>
-                <a :href="'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(item.name)" target="_blank" class="w-8 h-8 flex-shrink-0 rounded-full bg-sky-50 flex items-center justify-center text-[#0077b6] hover:bg-[#00b4d8] hover:text-white transition-colors mt-0.5">
+                <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(item.name)" target="_blank" class="w-8 h-8 flex-shrink-0 rounded-full bg-sky-50 flex items-center justify-center text-[#0077b6] hover:bg-[#00b4d8] hover:text-white transition-colors mt-0.5">
                   <i class="fa-solid fa-diamond-turn-right text-[12px]"></i>
                 </a>
               </div>
@@ -160,7 +160,7 @@
               </div>
 
               <div v-for="(spot, index) in getRainySpots(region)" :key="'map-'+spot.id" 
-                   class="absolute w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white z-10 transition-transform hover:scale-110 text-white"
+                   class="absolute w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white/80 z-10 transition-transform hover:scale-110 text-white"
                    :class="spot.color"
                    :style="{ left: spot.mapX + '%', top: spot.mapY + '%', transform: 'translate(-50%, -50%)' }">
                 <span class="text-[10px] font-black">{{ index + 1 }}</span>
@@ -231,7 +231,7 @@
           <div class="p-1">
             <h4 class="text-sm font-bold text-slate-800">東橫INN 那霸新都心歌町</h4>
             <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i>1 Chome-2-27 Omoromachi, Naha, Okinawa</p>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=Toyoko+INN+Naha+Shintoshin+Omoromachi" target="_blank" class="mt-3 inline-flex items-center text-xs text-[#0077b6] font-medium bg-sky-50 px-3 py-1.5 rounded-lg hover:bg-sky-100"><i class="fa-solid fa-map-location-dot mr-1"></i>直接導航至飯店</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=東橫INN+那霸新都心歌町" target="_blank" class="mt-3 inline-flex items-center text-xs text-[#0077b6] font-medium bg-sky-50 px-3 py-1.5 rounded-lg hover:bg-sky-100"><i class="fa-solid fa-map-location-dot mr-1"></i>直接導航至飯店</a>
           </div>
         </div>
       </div>
@@ -475,7 +475,7 @@
             <div><label class="block text-xs font-bold text-slate-500 mb-1">所屬區域</label><select v-model="form.rainyEdit.region" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"><option value="北區">北區</option><option value="中區">中區</option><option value="南區">南區</option></select></div>
             <div><label class="block text-xs font-bold text-slate-500 mb-1">分類標籤</label><input type="text" v-model="form.rainyEdit.category" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
           </div>
-          <div><label class="block text-xs font-bold text-slate-500 mb-1">圖片網址</label><input type="text" v-model="form.rainyEdit.img" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
+          <div><label class="block text-xs font-bold text-slate-500 mb-1">圖片網址 (可用網路圖片替換)</label><input type="text" v-model="form.rainyEdit.img" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">景點介紹</label><textarea v-model="form.rainyEdit.desc" rows="2" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></textarea></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">雨天優勢</label><textarea v-model="form.rainyEdit.adv" rows="2" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></textarea></div>
           <div><label class="block text-xs font-bold text-slate-500 mb-1">門票費用</label><input type="text" v-model="form.rainyEdit.ticket" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-sm"></div>
@@ -615,18 +615,24 @@
 
         const loadSavedData = () => {
           try {
-            // ⭐ 強制更新版本號 v17，防止舊版快取資料損毀導致白畫面
-            const savedItinerary = localStorage.getItem('ok_itinerary_final_v17');
-            const savedShopping = localStorage.getItem('ok_shopping_v17');
-            const savedExpenses = localStorage.getItem('ok_expenses_v17');
-            const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v17'); 
-            const savedRainy = localStorage.getItem('ok_rainy_v17');
+            // ⭐ 終極 Try-Catch 防護機制，版本提升至 v20，強制覆蓋舊有的損壞資料，100% 杜絕白畫面
+            const getSafeArray = (key, defaultArr) => {
+              const str = localStorage.getItem(key);
+              if (!str) return defaultArr;
+              try {
+                const parsed = JSON.parse(str);
+                return Array.isArray(parsed) ? parsed : defaultArr;
+              } catch (e) {
+                return defaultArr;
+              }
+            };
 
-            if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
-            if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
-            if (savedExpenses) expenses.value = JSON.parse(savedExpenses);
-            if (savedPrivateExpenses) privateExpenses.value = JSON.parse(savedPrivateExpenses);
-            if (savedRainy) rainySpots.value = JSON.parse(savedRainy); else rainySpots.value = rainySeedData;
+            itineraries.value = getSafeArray('ok_itinerary_final_v20', itinerarySeed);
+            shoppingList.value = getSafeArray('ok_shopping_v20', []);
+            expenses.value = getSafeArray('ok_expenses_v20', []);
+            privateExpenses.value = getSafeArray('ok_private_expenses_v20', []); 
+            rainySpots.value = getSafeArray('ok_rainy_v20', rainySeedData);
+            
           } catch(e) {
             console.error("資料載入異常，為避免白畫面已重置為預設資料", e);
             itineraries.value = itinerarySeed;
@@ -638,11 +644,11 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_final_v17', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v17', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v17', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v17', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_v17', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_final_v20', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v20', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v20', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v20', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_v20', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
         const currentDayItinerary = computed(() => { return itineraries.value.filter(item => item.dayIdx === selectedDayIdx.value); });
