@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=300;400;500;700&display=swap" rel="stylesheet">
   
   <style>
     body {
@@ -61,6 +61,7 @@
           </button>
         </div>
 
+        <!-- 🌟 已修正：將靜態的「降雨機率 10%」替換為動態的 {{ weatherData.pop }} -->
         <a href="https://tenki.jp/forecast/10/50/4710/47201/" target="_blank" class="block bg-gradient-to-r from-sky-400/20 to-blue-400/10 rounded-2xl p-4 mb-5 border border-sky-200/50 flex items-center justify-between hover:from-sky-400/30 hover:to-blue-400/20 transition-all shadow-sm group">
           <div class="flex items-center space-x-3">
             <i :class="weatherData.icon" class="text-3xl text-amber-500 animate-pulse"></i>
@@ -149,6 +150,7 @@
       <!-- 資訊 Tab -->
       <div v-if="activeTab === 'info'" class="space-y-4">
 
+        <!-- 計程車車費試算卡片 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-taxi text-yellow-500 mr-2"></i>計程車車費試算</h3>
           <div class="p-1">
@@ -159,6 +161,7 @@
           </div>
         </div>
 
+        <!-- 單軌電車路線圖 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-train text-indigo-500 mr-2"></i>單軌電車路線圖</h3>
           <div class="rounded-xl overflow-hidden border border-slate-100 bg-slate-50 relative flex items-center justify-center">
@@ -166,6 +169,7 @@
           </div>
         </div>
         
+        <!-- 雨天室內景點 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-cloud-showers-water text-blue-500 mr-2 text-lg"></i>雨天＆避暑室內景點</h3>
           <p class="text-[11px] text-slate-500 leading-relaxed mb-4 bg-blue-50/50 p-2 rounded-lg border-l-2 border-blue-300">
@@ -353,7 +357,6 @@
               <div class="flex items-center space-x-3">
                 <span class="text-sm font-bold text-slate-700">NT$ {{ Math.round(exp.amountTwd).toLocaleString() }}</span>
                 <button @click="openEditExpenseModal(exp, 'public')" class="text-slate-300 hover:text-[#0077b6] text-xs"><i class="fa-solid fa-pen"></i></button>
-                <!-- 🌟 改為點擊觸發刪除確認 Modal -->
                 <button @click="triggerDeleteExpense(exp.id, 'public')" class="text-slate-300 hover:text-rose-500 text-xs"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
@@ -397,7 +400,6 @@
               <div class="flex items-center space-x-3">
                 <span class="text-sm font-bold text-slate-700">NT$ {{ Math.round(exp.amountTwd).toLocaleString() }}</span>
                 <button @click="openEditExpenseModal(exp, 'private')" class="text-slate-300 hover:text-teal-600 text-xs"><i class="fa-solid fa-pen"></i></button>
-                <!-- 🌟 改為點擊觸發刪除確認 Modal -->
                 <button @click="triggerDeleteExpense(exp.id, 'private')" class="text-slate-300 hover:text-rose-500 text-xs"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
@@ -503,7 +505,7 @@
       </div>
     </div>
 
-    <!-- 🌟 新增：刪除確認 Modal (防呆機制) -->
+    <!-- 刪除確認 Modal (防呆機制) -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-center justify-center p-5">
       <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl transform transition-transform duration-300 text-center animate-scale-up">
         <div class="w-14 h-14 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4 border border-rose-100">
@@ -594,7 +596,7 @@
         const showRainyDetailModal = ref(false);
         const selectedRainySpot = ref(null);
 
-        // ⭐ 新增刪除確認狀態管理
+        // 刪除確認狀態管理
         const showDeleteConfirm = ref(false);
         const deleteTarget = ref({ id: null, type: '' });
 
@@ -661,7 +663,7 @@
           { id: 'r5', region: '中區', category: '購物', name: '浦添西海岸 PARCO CITY', en: 'PARCO CITY', icon: 'fa-solid fa-store', color: 'bg-teal-500', mapX: 45, mapY: 85, desc: '近年新開幕的臨海大型綜合商場。主打引進首次進駐沖繩的潮流品牌與精品，內部設計極具現代感。', adv: '全室內設計，寬敞明亮的室內環境與極高的重複逛街度，是完美的雨天備案。', ticket: '免費入館', notes: '距離那霸市區車程算近。' },
           { id: 'r6', region: '中區', category: 'DIY', name: '琉球村', en: 'Ryukyu Mura', icon: 'fa-solid fa-house-chimney', color: 'bg-orange-500', mapX: 35, mapY: 30, desc: '將沖繩古代傳統民家完整移築的主題公園，提供多達數十種傳統工藝體驗，如彩繪招福獅。', adv: '雖然整體在戶外，但傳統工藝 DIY 體驗區皆設有遮棚或位於室內。', ticket: '大人 1,500 日圓 / 兒童 750 日圓 (DIY費用另計)', notes: '移動於各民家之間仍需撐傘，建議穿著方便穿脫的鞋子。' },
           { id: 'r7', region: '中區', category: 'DIY', name: 'Gala 青海', en: 'Gala Aoiumi', icon: 'fa-solid fa-droplet', color: 'bg-sky-400', mapX: 20, mapY: 45, desc: '位於讀谷村海邊的製鹽與工藝綜合園區。除了觀看海水製鹽，更以高自由度的手作體驗聞名（吹玻璃、陶藝）。', adv: '手作體驗工坊皆在室內屋頂下進行，不會受到降雨干擾。', ticket: '免費入園 (玻璃吹製體驗約 3,000 日圓)', notes: '園區內有著名的「海鹽冰淇淋」，非常推薦嘗試。' },
-          { id: 'r8', region: '南區', category: '購物', name: 'iias 沖繩豐崎', en: 'iias Toyosaki', icon: 'fa-solid fa-fish', color: 'bg-blue-400', mapX: 25, mapY: 80, desc: '結合購物與「DMM Kariyushi 水族館」的大型商場。水族館主打最新數位影像科技與魔幻燈光。', adv: '不用撐傘就能在同棟建築內完成「逛街、看水族館、吃美食」所有願望。', ticket: '商場免費。水族館大人 2,400 日圓 / 兒童 1,500 日圓', notes: '距離那霸機場車程約 20 分鐘。' },
+          { id: 'r8', region: '南區', category: '購物', name: 'iias 沖繩豐崎', en: 'iias Toyosaki', icon: 'fa-solid fa-fish', color: 'bg-blue-400', mapX: 25, mapY: 80, desc: '結合購物與「DMM Kariyushi 水族館」的大型商場。水族館主打最新數位影像科技與魔幻燈光。', adv: '不用撐傘就能在同棟建築內完成「逛街、看水族館、吃美食 Thames 所有願望。', ticket: '商場免費。水族館大人 2,400 日圓 / 兒童 1,500 日圓', notes: '距離那霸機場車程約 20 分鐘。' },
           { id: 'r9', region: '南區', category: '購物', name: 'DFS 沖繩 T 廣場', en: 'T Galleria by DFS', icon: 'fa-solid fa-gem', color: 'bg-slate-800', mapX: 55, mapY: 35, desc: '日本國內唯一路面免稅店，匯集頂級奢侈品牌。館內更引進了適合小朋友放電的 teamLab 沉浸式展覽。', adv: '大人可以在免稅店血拼，小朋友可以到 teamLab 放電，各取所需。', ticket: '免稅店免費。teamLab 大人約 2,000 日圓', notes: '與單軌電車「歌町站」有空橋相連，出站入館完全不淋雨。' },
           { id: 'r10', region: '南區', category: '購物', name: '沖繩 ASHIBINAA Outlet', en: 'ASHIBINAA Outlet', icon: 'fa-solid fa-tags', color: 'bg-emerald-500', mapX: 30, mapY: 75, desc: '沖繩唯一的名牌折扣城，聚集超過百家國際名牌與運動品牌。', adv: '店鋪與店鋪之間的走廊上方大多設有遮雨頂棚。', ticket: '免費入館', notes: '風雨過大時走廊可能會有雨水飄入，請務必帶隨身雨具。' },
           { id: 'r11', region: '南區', category: '購物', name: 'San-A 那霸 Main Place', en: 'San-A Naha Main Place', icon: 'fa-solid fa-cart-shopping', color: 'bg-red-400', mapX: 50, mapY: 35, desc: '位於那霸市新都心的老牌全方位商場。藥妝、服飾與超大型超市一應俱全。', adv: '全室內大樓，搭單軌電車即可輕鬆抵達。', ticket: '免費入館', notes: '適合在那霸市區快速補貨藥妝與零食的旅客。' },
@@ -687,7 +689,7 @@
 
           // Day 2
           { id: 'd2-1', dayIdx: 1, category: '美食', name: '飯店早餐', hours: '07:00 - 07:50', notes: '享用免費特製飯糰', transitType: '步行', transitTime: 5 },
-          { id: 'd2-2', dayIdx: 1, category: '交通', name: '前往北部一日遊集合點', hours: '07:50 - 08:00', notes: '8:20集合, 8:30發車\n地點:日本〒900-0006 沖繩縣那霸市おもろまち4丁目1 歌町站', location: '日本〒900-0006 沖繩縣那霸市おもろまち4丁目1 歌町站', img: 'image-2.jpg', transitType: '大眾運輸', transitTime: 40 },
+          { id: 'd2-2', dayIdx: 1, category: '交通', name: '前往北部一日遊集合點', hours: '07:50 - 08:00', notes: '8:20集合, 8:30發車\n地點:日本〒900-0006 沖繩縣那霸市お模ろまち4丁目1 歌町站', location: '日本〒900-0006 沖繩縣那霸市お模ろまち4丁目1 歌町站', img: 'image-2.jpg', transitType: '大眾運輸', transitTime: 40 },
           { id: 'd2-3', dayIdx: 1, category: '景點', name: '萬座毛', hours: '09:20 - 09:50', notes: '欣賞象鼻海蝕懸崖。停留30分鐘', ticket: '跟團含', transitType: '大眾運輸', transitTime: 50 },
           { id: 'd2-4', dayIdx: 1, category: '交通', name: '古宇利大橋', hours: '10:37', notes: '車覽3分鐘', transitType: '大眾運輸', transitTime: 3 },
           { id: 'd2-5', dayIdx: 1, category: '景點', name: '古宇利島', hours: '10:40 - 11:10', notes: '停留30分鐘', transitType: '大眾運輸', transitTime: 30 },
@@ -695,7 +697,7 @@
           { id: 'd2-7', dayIdx: 1, category: '景點', name: '美國村 (★解散離團)', hours: '16:40', notes: '主動告知導遊脫隊。\n永旺商場位於附近', mapUrl: 'https://www.google.com/maps/place/AEON+Chatan/', transitType: '步行', transitTime: 15 },
           { id: 'd2-8', dayIdx: 1, category: '美食', name: '燒肉王 (北谷店)', hours: '18:00', notes: '強推 3,280日圓牛肉餐位。', transitType: '步行', transitTime: 15 },
           { id: 'd2-9', dayIdx: 1, category: '交通', name: '桑江站搭車回那霸巴士總站', hours: '20:30', notes: '20、28、29、112、120號皆可到達巴士總站(那霸BT)過程車程約60分鐘', location: '桑江', transitType: '大眾運輸', transitTime: 60 },
-          { id: 'd2-10', dayIdx: 1, category: '交通', name: '旭橋站 - 歌町站', hours: '21:30', notes: '與巴士總站同一側，直走約３分鐘，旭橋站6 - 歌町站11 車程約８分鐘', location: '旭橋單軌電車站', transitType: '大眾運輸', transitTime: 8 },
+          { id: 'd2-10', dayIdx: 1, category: '交通', name: '旭橋站 - 歌町站', hours: '21:30', notes: '與巴士總站同一側，直走約３分鐘，旭橋站6 - 歌町站11 車程約停８分鐘', location: '旭橋單軌電車站', transitType: '大眾運輸', transitTime: 8 },
 
           // Day 3
           { id: 'd3-0', dayIdx: 2, category: '美食', name: '東橫INN 飯店早餐', hours: '07:00 - 08:00', notes: '享用早餐時間至8:00出發', location: '東橫INN 那霸新都心站前', transitType: '步行', transitTime: 5 },
@@ -726,13 +728,13 @@
           { id: 'd5-7', dayIdx: 4, category: '航班', name: '抵達那霸機場搭機返台', hours: '18:00', flightNum: 'IT289', notes: '搭機返台！飛機起飛時間21:40', transitType: '步行', transitTime: 0 }
         ];
 
-        // 🌟 記憶體代號更新為 api_v2
+        // 🌟 記憶體代號更新為 api_v3
         const loadSavedData = () => {
-          const savedItinerary = localStorage.getItem('ok_itinerary_api_v2');
-          const savedShopping = localStorage.getItem('ok_shopping_api_v2');
-          const savedExpenses = localStorage.getItem('ok_expenses_api_v2');
-          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_api_v2'); 
-          const savedRainy = localStorage.getItem('ok_rainy_api_v2');
+          const savedItinerary = localStorage.getItem('ok_itinerary_api_v3');
+          const savedShopping = localStorage.getItem('ok_shopping_api_v3');
+          const savedExpenses = localStorage.getItem('ok_expenses_api_v3');
+          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_api_v3'); 
+          const savedRainy = localStorage.getItem('ok_rainy_api_v3');
 
           if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
@@ -742,11 +744,11 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_api_v2', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_api_v2', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_api_v2', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_api_v2', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_api_v2', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_api_v3', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_api_v3', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_api_v3', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_api_v3', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_api_v3', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
         // 線上即時獲取匯率資料 
@@ -764,7 +766,7 @@
               }
             }
           } catch (error) {
-            console.error('線上匯率資料動態更新失敗，改用預設引數：', error);
+            console.error('線上匯率資料動態更新失敗，改用預設參數：', error);
           }
         };
 
@@ -975,13 +977,11 @@
           }
         };
 
-        // 🌟 觸發刪除確認 Modal
         const triggerDeleteExpense = (id, type) => {
           deleteTarget.value = { id, type };
           showDeleteConfirm.value = true;
         };
 
-        // 🌟 執行實際的刪除動作
         const executeDeleteExpense = () => {
           if (deleteTarget.value.type === 'public') {
             expenses.value = expenses.value.filter(e => e.id !== deleteTarget.value.id);
@@ -1003,7 +1003,7 @@
           showRainyDetailModal, selectedRainySpot, openRainyDetail, closeRainyDetail, triggerEditRainyFromDetail, triggerDeleteRainyFromDetail,
           showModal, showExpenseConfirm, modalTitle, modalTarget, form, isEditing, confirmDelete, fxCalc, fxRateGlobal, payersList, quickExpense, quickPrivateExpense, confirmExpenseData,
           showCouponModal, currentCouponIdx, coupons, openCoupons, closeCoupons, nextCoupon, prevCoupon, handleTouchStart, handleTouchEnd, weatherData,
-          showDeleteConfirm, triggerDeleteExpense, executeDeleteExpense, // 🌟 暴露刪除確認相關變數與函式給模板使用
+          showDeleteConfirm, triggerDeleteExpense, executeDeleteExpense,
           calcToTwd, calcToJpy, openAddModal, openEditModal, openEditExpenseModal, handleImageUpload, submitForm, previewQuickExpense, confirmAddExpense, getPayerTotalTwd,
           moveItem, deleteModalItem, deleteShoppingItem, deleteRainySpot,
           getCategoryColor, getCategoryIcon, getCategoryBadgeClass, getTransitIcon, getAmPm, getStartTimeOnly, getDurationText, getCategoryTextColor
