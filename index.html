@@ -52,6 +52,7 @@
 
     <main class="-mt-8 rounded-t-[32px] bg-[#f0f7f9] flex-1 z-20 px-4 pt-6 relative pb-24">
       
+      <!-- 行程 Tab -->
       <div v-if="activeTab === 'itinerary'">
         <div class="flex space-x-3 overflow-x-auto pb-4 no-scrollbar scroll-smooth snap-x">
           <button v-for="(day, index) in days" :key="index" @click="selectedDayIdx = index" :class="selectedDayIdx === index ? 'bg-[#0077b6] text-white shadow-md transform scale-105' : 'bg-white text-slate-700'" class="flex-shrink-0 w-[64px] py-2.5 rounded-2xl flex flex-col items-center justify-center snap-center transition-all duration-200 border border-slate-100">
@@ -112,7 +113,7 @@
                   </div>
                   <div class="space-y-1.5">
                     <p v-if="item.ticket" class="text-[11px] text-orange-500 font-medium"><i class="fa-solid fa-ticket mr-1"></i>{{ item.ticket }}</p>
-                    <p v-if="item.notes" class="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border-l-2 border-[#00b4d8] leading-relaxed"><i class="fa-regular fa-lightbulb mr-1 text-[#00b4d8]"></i>{{ item.notes }}</p>
+                    <p v-if="item.notes" class="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border-l-2 border-[#00b4d8] leading-relaxed whitespace-pre-wrap"><i class="fa-regular fa-lightbulb mr-1 text-[#00b4d8]"></i>{{ item.notes }}</p>
                   </div>
                 </div>
                 <a :href="'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(item.name)" target="_blank" class="w-8 h-8 flex-shrink-0 rounded-full bg-sky-50 flex items-center justify-center text-[#0077b6] hover:bg-[#00b4d8] hover:text-white transition-colors mt-0.5">
@@ -127,7 +128,7 @@
             </div>
 
             <div v-if="idx < currentDayItinerary.length - 1" class="my-3 ml-1 flex items-center space-x-2 text-[11px] text-slate-400">
-              <span class="inline-flex items-center bg-slate-100 px-2.5 py-0.5 rounded-full text-[10px] font-medium text-slate-500 relative z-10 border border-white shadow-sm"><i :class="getTransitIcon(item.transitType)" class="mr-1 opacity-70"></i>{{ item.transitTime || '15' }} 分</span>
+              <span class="inline-flex items-center bg-slate-100 px-2.5 py-0.5 rounded-full text-[10px] font-medium text-slate-500 relative z-10 border border-white shadow-sm"><i :class="getTransitIcon(item.transitType)" class="mr-1 opacity-70"></i>{{ item.transitTime || '0' }} 分</span>
             </div>
           </div>
           <div v-if="currentDayItinerary.length === 0" class="text-center py-12 text-slate-400 font-light text-sm bg-white rounded-2xl border border-dashed border-slate-200">
@@ -137,6 +138,7 @@
         <button @click="openAddModal('itinerary')" class="fixed right-6 bottom-6 w-14 h-14 bg-[#0077b6] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#00b4d8] active:scale-95 transition-all z-40"><i class="fa-solid fa-plus text-xl"></i></button>
       </div>
 
+      <!-- 資訊 Tab -->
       <div v-if="activeTab === 'info'" class="space-y-4">
         
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
@@ -236,6 +238,7 @@
         </div>
       </div>
 
+      <!-- 購物 Tab -->
       <div v-if="activeTab === 'shopping'">
         
         <div class="mb-5 bg-gradient-to-r from-rose-500 to-pink-500 rounded-2xl p-4 text-white shadow-md flex justify-between items-center cursor-pointer transform transition-transform hover:scale-[1.02] active:scale-95" @click="openCoupons">
@@ -270,6 +273,7 @@
         <button @click="openAddModal('shopping')" class="fixed right-6 bottom-6 w-14 h-14 bg-[#0077b6] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#00b4d8] active:scale-95 transition-all z-40"><i class="fa-solid fa-plus text-xl"></i></button>
       </div>
 
+      <!-- 記帳 Tab -->
       <div v-if="activeTab === 'expenses'" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <button @click="expenseSubTab = 'public'" :class="expenseSubTab === 'public' ? 'bg-[#0077b6] text-white shadow-md font-bold' : 'bg-white text-slate-600 border border-slate-200'" class="py-2.5 rounded-xl text-sm transition-all text-center flex items-center justify-center space-x-1.5"><i class="fa-solid fa-users"></i><span>公帳分帳</span></button>
@@ -373,6 +377,7 @@
       </div>
     </main>
 
+    <!-- ⭐ 全螢幕的折扣券展示區塊 (Coupon Modal) - 已移除左右箭頭 -->
     <div v-if="showCouponModal" class="fixed inset-0 bg-black z-[100] flex flex-col justify-between animate-scale-up touch-pan-x touch-pan-y">
       
       <div class="flex justify-between items-center p-4 text-white bg-gradient-to-b from-black/80 to-transparent absolute top-0 w-full z-20">
@@ -395,6 +400,7 @@
       </div>
     </div>
 
+    <!-- 原有的 Rainy Detail Modal -->
     <div v-if="showRainyDetailModal && selectedRainySpot" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-up relative">
         <div class="relative h-[160px] flex flex-col items-center justify-center overflow-hidden" :class="selectedRainySpot.img ? 'bg-slate-800' : selectedRainySpot.color">
@@ -449,6 +455,7 @@
       </div>
     </div>
 
+    <!-- 原有的 確認帳單 Modal -->
     <div v-if="showExpenseConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-5">
       <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl transform transition-transform duration-300">
         <div class="text-center mb-4">
@@ -471,6 +478,7 @@
       </div>
     </div>
 
+    <!-- 原有的 表單 Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="bg-white w-full max-w-md rounded-t-[28px] sm:rounded-2xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto transform transition-transform duration-300">
         <div class="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
@@ -550,7 +558,6 @@
         const showCouponModal = ref(false);
         const currentCouponIdx = ref(0);
         const touchStartX = ref(0);
-        // 設定 8 張折價券的檔名
         const coupons = ref([
           'coupon_1.jpg', 'coupon_2.jpg', 'coupon_3.jpg', 'coupon_4.jpg',
           'coupon_5.jpg', 'coupon_6.jpg', 'coupon_7.jpg', 'coupon_8.jpg'
@@ -614,28 +621,46 @@
           { id: 'r19', region: '南區', category: '美食', name: '泊港漁市場', en: 'Tomari Iyumachi', icon: 'fa-solid fa-fish-fins', color: 'bg-blue-600', mapX: 45, mapY: 35, desc: '位於那霸港附近的專業批發兼零售漁市場。直屬於沖繩縣漁業合作社，主打當天捕撈、新鮮直送的各類海鮮。最著名的是現場可以買到非常便宜且新鮮的鮪魚刺身、握壽司、海膽、大生蠔，以及各式烤海鮮熟食。', adv: '全室內市場設計，上方有完整的遮棚與隔絕，地面雖有些許水氣但完全不用撐傘，可以舒適地在各個攤位間穿梭大啖海鮮。', ticket: '免費入場 (消費另計)', notes: '主要是「外帶」或在攤位旁「現吃（部分有少量立吞區）」，非代客料理餐廳模式。清晨 6 點即開門，建議排在早午餐前往，傍晚許多攤位會陸續收攤！' }
         ];
 
+        // ⭐ 已為您將初始行程 Seed 替換為第一天到第三天的最新版本，並計算了交通時間與方式
         const itinerarySeed = [
-          { id: 'd1-1', dayIdx: 0, category: '航班', name: '抵達沖繩 (那霸機場)', hours: '12:30', flightNum: 'IT288', notes: '在售票機購買單軌電車一日券。', transitType: '大眾運輸', transitTime: 80 },
+          /* 第一天：7/12 */
+          { id: 'd1-1', dayIdx: 0, category: '航班', name: '抵達沖繩 (那霸機場)', hours: '12:30', flightNum: 'IT288', notes: '在售票機購買單軌電車一日券。', transitType: '大眾運輸', transitTime: 40 },
           { id: 'd1-2', dayIdx: 0, category: '住宿', name: '東橫INN 那霸新都心站前', hours: '13:50', notes: '入住飯店 Check-in 放行李。', transitType: '步行', transitTime: 5 },
-          { id: 'd1-3', dayIdx: 0, category: '美食', name: 'Naha Main Place 購物中心', hours: '15:30', notes: '商場內日式定食午晚餐。', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd1-4', dayIdx: 0, category: '景點', name: '夜遊國際通 & 牧志公設市場', hours: '19:00 - 22:00', notes: '品嚐十元餅。一蘭排隊約50分。', transitType: '步行', transitTime: 10 },
+          { id: 'd1-3', dayIdx: 0, category: '美食', name: 'A&W 那霸新都心店', hours: '14:20', notes: '沖繩限定美式漢堡，必喝麥根沙士！', transitType: '步行', transitTime: 5 },
+          { id: 'd1-4', dayIdx: 0, category: '購物', name: 'Naha Main Place 購物中心', hours: '15:30', notes: '商場內逛街採買。', transitType: '大眾運輸', transitTime: 20 },
+          { id: 'd1-5', dayIdx: 0, category: '美食', name: '暖暮拉麵 (那霸牧志店)', hours: '19:00', notes: '九州第一名拉麵，建議提早排隊。', transitType: '步行', transitTime: 5 },
+          { id: 'd1-6', dayIdx: 0, category: '景點', name: '夜遊國際通 & 牧志公設市場', hours: '20:00', notes: '品嚐十元餅。一蘭排隊約50分。', transitType: '大眾運輸', transitTime: 20 },
+          { id: 'd1-7', dayIdx: 0, category: '住宿', name: '返回東橫INN 那霸新都心站前', hours: '21:30', notes: '結束第一天行程。', transitType: '步行', transitTime: 0 },
+
+          /* 第二天：7/13 */
           { id: 'd2-1', dayIdx: 1, category: '美食', name: '飯店早餐與出發', hours: '07:00', notes: '享用免費特製飯糰', transitType: '步行', transitTime: 10 },
-          { id: 'd2-2', dayIdx: 1, category: '交通', name: '前往北部一日遊集合點', hours: '07:40 - 08:00', notes: '歌町站附近集合，08:20 發車。', transitType: '大眾運輸', transitTime: 50 },
-          { id: 'd2-3', dayIdx: 1, category: '景點', name: '萬座毛', hours: '08:50 - 09:20', ticket: '跟團含', notes: '欣賞象鼻海蝕懸崖。', transitType: '大眾運輸', transitTime: 60 },
-          { id: 'd2-4', dayIdx: 1, category: '景點', name: '古宇利島 & 跨海大橋', hours: '10:20 - 10:50', notes: '品嚐海鹽牛奶冰淇淋', transitType: '大眾運輸', transitTime: 30 },
-          { id: 'd2-5', dayIdx: 1, category: '景點', name: '美麗海水族館 & 海洋博公園', hours: '11:20 - 15:30', notes: '必看 13:00 或 15:00 海豚秀', transitType: '大眾運輸', transitTime: 90 },
-          { id: 'd2-6', dayIdx: 1, category: '景點', name: '北谷美國村 (★解散離團)', hours: '17:08', notes: '主動告知導遊脫隊。', transitType: '步行', transitTime: 10 },
-          { id: 'd2-7', dayIdx: 1, category: '美食', name: '燒肉王 (北谷店)', hours: '18:00 - 19:40', notes: '強推 3,280日圓牛肉餐位。', transitType: '步行', transitTime: 5 },
-          { id: 'd2-8', dayIdx: 1, category: '景點', name: '美國村海邊美食商店街', hours: '19:40 - 20:15', notes: '吃飽散步看夜景', transitType: '大眾運輸', transitTime: 60 },
-          { id: 'd2-9', dayIdx: 1, category: '交通', name: '返回新都心飯店', hours: '20:40 - 22:08', notes: '桑江站搭28號公車', transitType: '步行', transitTime: 10 },
-          { id: 'd3-0', dayIdx: 2, category: '交通', name: '出發那霸巴士總站', hours: '08:30', notes: '旭橋站東口直走天橋。', transitType: '大眾運輸', transitTime: 0 },
-          { id: 'd3-1', dayIdx: 2, category: '景點', name: '玉泉洞 (沖繩世界文化王國)', hours: '08:30 - 12:20', ticket: '出示網購QR', notes: '探訪鐘乳石洞、看太鼓秀。', transitType: '大眾運輸', transitTime: 75 },
-          { id: 'd3-3', dayIdx: 2, category: '景點', name: '瀨長島白色建築群', hours: '16:30 - 19:40', notes: '看飛機起降與日落。', transitType: '大眾運輸', transitTime: 20 },
-          { id: 'd3-4', dayIdx: 2, category: '美食', name: '魚屋直營食堂 魚まる', hours: '20:00 - 21:00', notes: '激推海鮮丼！', transitType: '步行', transitTime: 10 },
+          { id: 'd2-2', dayIdx: 1, category: '交通', name: '前往北部一日遊集合點', hours: '07:40', notes: '8:20集合, 8:30發車\n地點: 沖繩縣那霸市T廣場哥丁巴士站前 (900-0006)', transitType: '大眾運輸', transitTime: 40 },
+          { id: 'd2-3', dayIdx: 1, category: '景點', name: '萬座毛', hours: '09:20 - 09:50', ticket: '跟團含', notes: '停留30分鐘。欣賞象鼻海蝕懸崖。', transitType: '大眾運輸', transitTime: 50 },
+          { id: 'd2-4', dayIdx: 1, category: '景點', name: '古宇利大橋', hours: '10:37', notes: '車覽3分鐘。', transitType: '大眾運輸', transitTime: 3 },
+          { id: 'd2-5', dayIdx: 1, category: '景點', name: '古宇利島', hours: '10:40 - 11:10', notes: '停留30分鐘。品嚐海鹽牛奶冰淇淋', transitType: '大眾運輸', transitTime: 30 },
+          { id: 'd2-6', dayIdx: 1, category: '景點', name: '沖繩美麗海水族館', hours: '11:40 - 15:10', notes: '停留3小時30分鐘。必看海豚秀。', transitType: '大眾運輸', transitTime: 90 },
+          { id: 'd2-7', dayIdx: 1, category: '景點', name: '美國村 (★解散離團)', hours: '16:40', notes: '主動告知導遊脫隊。', transitType: '步行', transitTime: 10 },
+          { id: 'd2-8', dayIdx: 1, category: '美食', name: '燒肉王 (北谷店)', hours: '18:00 - 19:40', notes: '強推 3,280日圓牛肉餐位。', transitType: '大眾運輸', transitTime: 60 },
+          { id: 'd2-9', dayIdx: 1, category: '住宿', name: '返回東橫INN 那霸新都心站前', hours: '20:40', notes: '搭乘公車返回市區飯店休息。', transitType: '步行', transitTime: 0 },
+
+          /* 第三天：7/14 */
+          { id: 'd3-0', dayIdx: 2, category: '交通', name: '出發那霸巴士總站', hours: '08:30', notes: '旭橋站東口直走天橋。', transitType: '大眾運輸', transitTime: 60 },
+          { id: 'd3-1', dayIdx: 2, category: '景點', name: '玉泉洞 (沖繩世界文化王國)', hours: '09:30 - 12:00', ticket: '出示網購QR', notes: '探訪鐘乳石洞、看太鼓秀。', transitType: '大眾運輸', transitTime: 60 },
+          { id: 'd3-2', dayIdx: 2, category: '美食', name: '沖繩麵 EIBUN', hours: '13:00', notes: '是排隊名店，到了之後趕快登記，用餐時段等待30-60分鐘，激推BUNBUN SOBA，一定要升級生麵(日幣50)', transitType: '步行', transitTime: 8 },
+          { id: 'd3-3', dayIdx: 2, category: '景點', name: '國際通及周邊小店', hours: '14:30', notes: '飯後逛街散步。', transitType: '步行', transitTime: 2 },
+          { id: 'd3-4', dayIdx: 2, category: '購物', name: '山城用品', hours: '14:35', notes: '日幣100的磁鐵可以閉眼買！', transitType: '步行', transitTime: 2 },
+          { id: 'd3-5', dayIdx: 2, category: '購物', name: 'Jisakasu', hours: '14:40', notes: '古董雜物店、二手復古有趣小物、挖寶小時候的回憶', transitType: '步行', transitTime: 5 },
+          { id: 'd3-6', dayIdx: 2, category: '美食', name: '花商 花生豆腐專門店', hours: '15:00', notes: '過去曾經是琉球王朝時段的高級宴客料理，口感與傳統印象的豆腐不一樣，比較像麻糬，內用有醬料可供使用，推薦甜醬油', transitType: '步行', transitTime: 5 },
+          { id: 'd3-7', dayIdx: 2, category: '美食', name: '南島製菓', hours: '15:20', notes: '創立90年，在地人從小吃到大的老字號，販賣傳統沖繩糕點(非伴手禮)', transitType: '大眾運輸', transitTime: 30 },
+          { id: 'd3-8', dayIdx: 2, category: '美食', name: '魚屋直營食堂 魚まる', hours: '18:30', notes: '激推海鮮丼！', transitType: '步行', transitTime: 0 },
+
+          /* 第四天：7/15 (維持不變) */
           { id: 'd4-1', dayIdx: 3, category: '交通', name: '購買單軌電車 48小時通票', hours: '08:00', notes: '★今天不退房。', transitType: '大眾運輸', transitTime: 15 },
           { id: 'd4-2', dayIdx: 3, category: '景點', name: '波上宮 & 波之上海灘', hours: '08:30 - 10:30', notes: '參拜神社、海水浴場。', transitType: '步行', transitTime: 25 },
           { id: 'd4-3', dayIdx: 3, category: '景點', name: '奧武山公園溜滑梯', hours: '11:00 - 12:00', notes: '免費暢玩巨型滾輪溜滑梯！', transitType: '大眾運輸', transitTime: 15 },
           { id: 'd4-4', dayIdx: 3, category: '購物', name: '通堂拉麵 & AEON免稅店', hours: '12:02 - 17:00', notes: '推薦男味拉麵', transitType: '大眾運輸', transitTime: 20 },
+          
+          /* 第五天：7/16 (維持不變) */
           { id: 'd5-1', dayIdx: 4, category: '住宿', name: '飯店退房與寄存行李', hours: '09:00', notes: '將行李免費寄放櫃檯。', transitType: '大眾運輸', transitTime: 38 },
           { id: 'd5-2', dayIdx: 4, category: '景點', name: '首里城公園', hours: '09:38 - 11:20', notes: '定位「沖繩縣立藝術大學」免爬坡。', transitType: '大眾運輸', transitTime: 20 },
           { id: 'd5-3', dayIdx: 4, category: '購物', name: '榮町市場 & 24hr大超市', hours: '11:40 - 12:30', notes: '安里站西口。買石垣牛排。', transitType: '大眾運輸', transitTime: 10 },
@@ -646,12 +671,12 @@
         ];
 
         const loadSavedData = () => {
-          // 沿用 v14 以避免清空上一版的資料
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v14');
-          const savedShopping = localStorage.getItem('ok_shopping_v14');
-          const savedExpenses = localStorage.getItem('ok_expenses_v14');
-          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v14'); 
-          const savedRainy = localStorage.getItem('ok_rainy_v14');
+          // 🌟 更新記憶碼為 v15
+          const savedItinerary = localStorage.getItem('ok_itinerary_final_v15');
+          const savedShopping = localStorage.getItem('ok_shopping_v15');
+          const savedExpenses = localStorage.getItem('ok_expenses_v15');
+          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v15'); 
+          const savedRainy = localStorage.getItem('ok_rainy_v15');
 
           if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
@@ -661,11 +686,11 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_final_v14', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v14', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v14', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v14', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_v14', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_final_v15', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v15', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v15', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v15', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_v15', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
         // ⭐ 折扣券邏輯控制
@@ -681,7 +706,6 @@
         const handleTouchEnd = (e) => {
           const touchEndX = e.changedTouches[0].screenX;
           const diff = touchStartX.value - touchEndX;
-          // 設定滑動超過 40px 才算數，避免誤觸
           if (diff > 40) { nextCoupon(); } 
           else if (diff < -40) { prevCoupon(); }
         };
