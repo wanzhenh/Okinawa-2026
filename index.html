@@ -61,19 +61,24 @@
           </button>
         </div>
 
-        <div class="bg-gradient-to-r from-sky-400/20 to-blue-400/10 rounded-2xl p-4 mb-5 border border-sky-200/50 flex items-center justify-between">
+        <!-- 🌟 升級版即時天氣卡片：支援自動載入最新數據與點擊外部詳細預報 -->
+        <a href="https://tenki.jp/forecast/10/50/4710/47201/" target="_blank" class="block bg-gradient-to-r from-sky-400/20 to-blue-400/10 rounded-2xl p-4 mb-5 border border-sky-200/50 flex items-center justify-between hover:from-sky-400/30 hover:to-blue-400/20 transition-all shadow-sm group">
           <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-cloud-sun text-3xl text-amber-500 animate-pulse"></i>
+            <i :class="weatherData.icon" class="text-3xl text-amber-500 animate-pulse"></i>
             <div>
-              <p class="text-xs text-slate-500 font-medium">那霸市今日天氣</p>
-              <p class="text-sm font-semibold text-slate-800">盛夏晴朗、紫外線強</p>
+              <p class="text-xs text-slate-500 font-medium flex items-center">
+                那霸市即時天氣 <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px] opacity-50 group-hover:opacity-100 transition-opacity"></i>
+              </p>
+              <p class="text-sm font-semibold text-slate-800">{{ weatherData.desc }}</p>
+              <!-- 顯示降雨機率 -->
+              <p class="text-[11px] text-blue-600 font-bold mt-0.5"><i class="fa-solid fa-droplet mr-1"></i>降雨機率 {{ weatherData.pop }}</p>
             </div>
           </div>
           <div class="text-right">
-            <span class="text-2xl font-bold text-[#0077b6]">31°C</span>
-            <p class="text-[11px] text-slate-400">體感溫度 34°C</p>
+            <span class="text-2xl font-bold text-[#0077b6]">{{ weatherData.temp }}</span>
+            <p class="text-[11px] text-slate-400">體感溫度 {{ weatherData.feelsLike }}</p>
           </div>
-        </div>
+        </a>
 
         <div class="space-y-4 pl-4 relative before:absolute before:top-6 before:bottom-0 before:left-[21px] before:w-0.5 before:bg-[#d6d2f3]">
           <div v-for="(item, idx) in currentDayItinerary" :key="item.id" class="relative pl-6 group">
@@ -146,7 +151,7 @@
       <!-- 資訊 Tab -->
       <div v-if="activeTab === 'info'" class="space-y-4">
 
-        <!-- ⭐ 將計程車車費試算卡片移至最上方 -->
+        <!-- 計程車車費試算卡片 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-taxi text-yellow-500 mr-2"></i>計程車車費試算</h3>
           <div class="p-1">
@@ -157,6 +162,7 @@
           </div>
         </div>
 
+        <!-- 單軌電車路線圖 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-train text-indigo-500 mr-2"></i>單軌電車路線圖</h3>
           <div class="rounded-xl overflow-hidden border border-slate-100 bg-slate-50 relative flex items-center justify-center">
@@ -164,6 +170,7 @@
           </div>
         </div>
         
+        <!-- 雨天室內景點 -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-cloud-showers-water text-blue-500 mr-2 text-lg"></i>雨天＆避暑室內景點</h3>
           <p class="text-[11px] text-slate-500 leading-relaxed mb-4 bg-blue-50/50 p-2 rounded-lg border-l-2 border-blue-300">
@@ -229,6 +236,7 @@
           </div>
         </div>
 
+        <!-- 🌟 日幣匯率即時試算卡片（現在預設顯示從線上 API 抓到的數值） -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-calculator text-amber-500 mr-2"></i>日幣匯率即時試算</h3>
           <div class="grid grid-cols-2 gap-3 items-center">
@@ -241,6 +249,7 @@
               <div class="relative"><input type="number" v-model="fxCalc.twd" @input="calcToJpy" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-emerald-600 focus:outline-none"><span class="absolute right-3 top-2.5 text-xs text-emerald-500">$</span></div>
             </div>
           </div>
+          <p class="text-[10px] text-slate-400 mt-2 text-right">當前線上即時匯率參數：{{ fxRateGlobal }}</p>
         </div>
         
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
@@ -401,10 +410,8 @@
       </div>
     </main>
 
-    <!-- ⭐ 全螢幕的折扣券展示區塊 (Coupon Modal) - 已移除左右箭頭 -->
+    <!-- 全螢幕的折扣券展示區塊 -->
     <div v-if="showCouponModal" class="fixed inset-0 bg-black z-[100] flex flex-col justify-between animate-scale-up touch-pan-x touch-pan-y">
-      
-      <!-- 頂部資訊列：進度與關閉按鈕 -->
       <div class="flex justify-between items-center p-4 text-white bg-gradient-to-b from-black/80 to-transparent absolute top-0 w-full z-20">
         <span class="font-bold tracking-widest text-sm drop-shadow-md bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">
           <i class="fa-solid fa-ticket mr-1"></i>折扣券 {{ currentCouponIdx + 1 }} / {{ coupons.length }}
@@ -413,21 +420,16 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-
-      <!-- 圖片展示區，綁定觸控事件偵測滑動 (僅保留 object-contain 圖片設定) -->
-      <div class="flex-1 flex items-center justify-center w-full h-full relative overflow-hidden" 
-           @touchstart="handleTouchStart" @touchend="handleTouchEnd">
+      <div class="flex-1 flex items-center justify-center w-full h-full relative overflow-hidden" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
         <img :src="coupons[currentCouponIdx]" alt="Coupon" class="w-full h-full object-contain transition-transform duration-300 max-h-screen" />
       </div>
-      
-      <!-- 底部提示文字 -->
       <div class="p-6 text-center absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none">
         <p class="text-white/80 text-[11px] font-light tracking-widest mb-1"><i class="fa-solid fa-arrows-left-right mr-1"></i>左右滑動切換圖片</p>
         <p class="text-white/50 text-[10px] font-light tracking-widest">可使用雙指放大檢視 Barcode</p>
       </div>
     </div>
 
-    <!-- 原有的 Rainy Detail Modal -->
+    <!-- Rainy Detail Modal -->
     <div v-if="showRainyDetailModal && selectedRainySpot" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-up relative">
         <div class="relative h-[160px] flex flex-col items-center justify-center overflow-hidden" :class="selectedRainySpot.img ? 'bg-slate-800' : selectedRainySpot.color">
@@ -482,7 +484,7 @@
       </div>
     </div>
 
-    <!-- 原有的 確認帳單 Modal -->
+    <!-- 確認帳單 Modal -->
     <div v-if="showExpenseConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-5">
       <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl transform transition-transform duration-300">
         <div class="text-center mb-4">
@@ -505,7 +507,7 @@
       </div>
     </div>
 
-    <!-- 原有的 表單 Modal -->
+    <!-- 表單 Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="bg-white w-full max-w-md rounded-t-[28px] sm:rounded-2xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto transform transition-transform duration-300">
         <div class="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
@@ -581,11 +583,10 @@
         const showRainyDetailModal = ref(false);
         const selectedRainySpot = ref(null);
 
-        // ⭐ 折扣券系統狀態與功能
+        // 折扣券狀態
         const showCouponModal = ref(false);
         const currentCouponIdx = ref(0);
         const touchStartX = ref(0);
-        // 設定 8 張折價券的檔名
         const coupons = ref([
           'coupon_1.jpg', 'coupon_2.jpg', 'coupon_3.jpg', 'coupon_4.jpg',
           'coupon_5.jpg', 'coupon_6.jpg', 'coupon_7.jpg', 'coupon_8.jpg'
@@ -605,9 +606,19 @@
           { week: 'Thu', date: '16', fullDate: '2026-07-16' }
         ];
 
+        // 🌟 匯率動態變數設定
         const fxCalc = ref({ jpy: 1000, twd: 215 });
-        const fxRateGlobal = ref(0.215); 
+        const fxRateGlobal = ref(0.215); // API 未響應前的安全預設值
         const payersList = ref(['婉禎', '嘉慶', '媽媽']);
+
+        // 🌟 天氣動態狀態變數
+        const weatherData = ref({
+          temp: '31°C',
+          feelsLike: '34°C',
+          desc: '載入中...',
+          pop: '--%',
+          icon: 'fa-solid fa-cloud-sun'
+        });
 
         const itineraries = ref([]);
         const shoppingList = ref([]);
@@ -636,7 +647,7 @@
           { id: 'r6', region: '中區', category: 'DIY', name: '琉球村', en: 'Ryukyu Mura', icon: 'fa-solid fa-house-chimney', color: 'bg-orange-500', mapX: 35, mapY: 30, desc: '將沖繩古代傳統民家完整移築的主題公園，提供多達數十種傳統工藝體驗，如彩繪招福獅。', adv: '雖然整體在戶外，但傳統工藝 DIY 體驗區皆設有遮棚或位於室內。', ticket: '大人 1,500 日圓 / 兒童 750 日圓 (DIY費用另計)', notes: '移動於各民家之間仍需撐傘，建議穿著方便穿脫的鞋子。' },
           { id: 'r7', region: '中區', category: 'DIY', name: 'Gala 青海', en: 'Gala Aoiumi', icon: 'fa-solid fa-droplet', color: 'bg-sky-400', mapX: 20, mapY: 45, desc: '位於讀谷村海邊的製鹽與工藝綜合園區。除了觀看海水製鹽，更以高自由度的手作體驗聞名（吹玻璃、陶藝）。', adv: '手作體驗工坊皆在室內屋頂下進行，不會受到降雨干擾。', ticket: '免費入園 (玻璃吹製體驗約 3,000 日圓)', notes: '園區內有著名的「海鹽冰淇淋」，非常推薦嘗試。' },
           { id: 'r8', region: '南區', category: '購物', name: 'iias 沖繩豐崎', en: 'iias Toyosaki', icon: 'fa-solid fa-fish', color: 'bg-blue-400', mapX: 25, mapY: 80, desc: '結合購物與「DMM Kariyushi 水族館」的大型商場。水族館主打最新數位影像科技與魔幻燈光。', adv: '不用撐傘就能在同棟建築內完成「逛街、看水族館、吃美食」所有願望。', ticket: '商場免費。水族館大人 2,400 日圓 / 兒童 1,500 日圓', notes: '距離那霸機場車程約 20 分鐘。' },
-          { id: 'r9', region: '南區', category: '購物', name: 'DFS 沖繩 T 廣場', en: 'T Galleria by DFS', icon: 'fa-solid fa-gem', color: 'bg-slate-800', mapX: 55, mapY: 35, desc: '日本國內唯一路面免稅店，匯集頂級奢侈品牌。館內更引進了適合小朋友放電的 teamLab 沉浸式展覽。', adv: '大人可以在免稅店血拼，小朋友可以到 teamLab 放電，各取所需。', ticket: '免稅店免費。teamLab 大人約 2,000 日圓', notes: '與單軌電車「歌町站」有空橋相連，出站入館完全不淋雨。' },
+          { id: 'r9', region: '南區', category: '購物', name: 'DFS 沖繩 T 廣場', en: 'T Galleria by DFS', icon: 'fa-solid fa-gem', color: 'bg-slate-800', mapX: 55, mapY: 35, desc: '日本國內唯一路面免稅店，匯集頂級奢侈品牌。館內更引進了適合小朋友放電的 teamLab 沉浸式展覽。', adv: '大人可以在免稅店血拼，小朋友可以到 teamLab放電，各取所需。', ticket: '免稅店免費。teamLab 大人約 2,000 日圓', notes: '與單軌電車「歌町站」有空橋相連，出站入館完全不淋雨。' },
           { id: 'r10', region: '南區', category: '購物', name: '沖繩 ASHIBINAA Outlet', en: 'ASHIBINAA Outlet', icon: 'fa-solid fa-tags', color: 'bg-emerald-500', mapX: 30, mapY: 75, desc: '沖繩唯一的名牌折扣城，聚集超過百家國際名牌與運動品牌。', adv: '店鋪與店鋪之間的走廊上方大多設有遮雨頂棚。', ticket: '免費入館', notes: '風雨過大時走廊可能會有雨水飄入，請務必帶隨身雨具。' },
           { id: 'r11', region: '南區', category: '購物', name: 'San-A 那霸 Main Place', en: 'San-A Naha Main Place', icon: 'fa-solid fa-cart-shopping', color: 'bg-red-400', mapX: 50, mapY: 35, desc: '位於那霸市新都心的老牌全方位商場。藥妝、服飾與超大型超市一應俱全。', adv: '全室內大樓，搭單軌電車即可輕鬆抵達。', ticket: '免費入館', notes: '適合在那霸市區快速補貨藥妝與零食的旅客。' },
           { id: 'r12', region: '南區', category: '購物', name: '小祿 Aeon (那霸店)', en: 'AEON Naha', icon: 'fa-solid fa-basket-shopping', color: 'bg-fuchsia-500', mapX: 40, mapY: 55, desc: '與單軌電車站共構的大型綜合超市商場。一樓是極大的生鮮超市，樓上有日系服飾與百元商店。', adv: '與單軌「小祿站」有室內聯絡通道直接相連，免開車、免撐傘。', ticket: '免費入館', notes: '旁邊就是小祿通堂拉麵和大國藥妝。' },
@@ -649,7 +660,6 @@
           { id: 'r19', region: '南區', category: '美食', name: '泊港漁市場', en: 'Tomari Iyumachi', icon: 'fa-solid fa-fish-fins', color: 'bg-blue-600', mapX: 45, mapY: 35, desc: '位於那霸港附近的專業批發兼零售漁市場。直屬於沖繩縣漁業合作社，主打當天捕撈、新鮮直送的各類海鮮。最著名的是現場可以買到非常便宜且新鮮的鮪魚刺身、握壽司、海膽、大生蠔，以及各式烤海鮮熟食。', adv: '全室內市場設計，上方有完整的遮棚與隔絕，地面雖有些許水氣但完全不用撐傘，可以舒適地在各個攤位間穿梭大啖海鮮。', ticket: '免費入場 (消費另計)', notes: '主要是「外帶」或在攤位旁「現吃（部分有少量立吞區）」，非代客料理餐廳模式。清晨 6 點即開門，建議排在早午餐前往，傍晚許多攤位會陸續收攤！' }
         ];
 
-        // ⭐ 這裡整合了最新的第1天到第5天的所有修改！
         const itinerarySeed = [
           // Day 1
           { id: 'd1-1', dayIdx: 0, category: '航班', name: '抵達沖繩 (那霸機場)', hours: '12:30', flightNum: 'IT288', notes: '在售票機購買單軌電車一日券。', transitType: '大眾運輸', transitTime: 30 },
@@ -701,13 +711,13 @@
           { id: 'd5-7', dayIdx: 4, category: '航班', name: '抵達那霸機場搭機返台', hours: '18:00', flightNum: 'IT289', notes: '搭機返台！飛機起飛時間21:40', transitType: '步行', transitTime: 0 }
         ];
 
-        // 🌟 記憶體代號更新為 v21，保證載入新行程
+        // 🌟 記憶體代號更新為全新的變數，防止載入舊資料
         const loadSavedData = () => {
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v21');
-          const savedShopping = localStorage.getItem('ok_shopping_v21');
-          const savedExpenses = localStorage.getItem('ok_expenses_v21');
-          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v21'); 
-          const savedRainy = localStorage.getItem('ok_rainy_v21');
+          const savedItinerary = localStorage.getItem('ok_itinerary_api_v1');
+          const savedShopping = localStorage.getItem('ok_shopping_api_v1');
+          const savedExpenses = localStorage.getItem('ok_expenses_api_v1');
+          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_api_v1'); 
+          const savedRainy = localStorage.getItem('ok_rainy_api_v1');
 
           if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
@@ -717,23 +727,81 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_final_v21', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v21', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v21', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v21', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_v21', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_api_v1', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_api_v1', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_api_v1', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v1', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_api_v1', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
-        // ⭐ 折扣券邏輯控制
+        // 🌟 線上即時獲取匯率資料 (使用公開無須金鑰之匯率 API)
+        const fetchRealTimeExchangeRate = async () => {
+          try {
+            const response = await fetch('https://open.er-api.com/v6/latest/USD');
+            if (response.ok) {
+              const data = await response.json();
+              const usdToTwd = data.rates.TWD;
+              const usdToJpy = data.rates.JPY;
+              if (usdToTwd && usdToJpy) {
+                // 計算日幣對台幣匯率 (TWD / JPY) 并四捨五入至小數點後三位
+                const calculatedRate = (usdToTwd / usdToJpy).toFixed(3);
+                fxRateGlobal.value = parseFloat(calculatedRate);
+                calcToTwd(); // 同步更新計算器預設值
+              }
+            }
+          } catch (error) {
+            console.error('線上匯率資料動態更新失敗，改用預設引數：', error);
+          }
+        };
+
+        // 🌟 線上即時獲取天氣與降雨機率資料 (使用免金鑰國際氣象開放 API)
+        const fetchRealTimeWeather = async () => {
+          try {
+            // 那霸市經緯度座標：26.2124, 127.6809
+            const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=26.2124&longitude=127.6809&current=temperature_2m,apparent_temperature,weather_code&daily=precipitation_probability_max&timezone=Asia%2FTokyo');
+            if (response.ok) {
+              const data = await response.json();
+              const temp = Math.round(data.current.temperature_2m);
+              const feelsLike = Math.round(data.current.apparent_temperature);
+              const pop = data.daily.precipitation_probability_max[0]; // 今日最大降雨機率
+              const code = data.current.weather_code;
+
+              weatherData.value.temp = `${temp}°C`;
+              weatherData.value.feelsLike = `${feelsLike}°C`;
+              weatherData.value.pop = `${pop}%`;
+
+              // 依據天氣代碼切換視覺圖示與狀態描述
+              if ([0].includes(code)) {
+                weatherData.value.desc = '盛夏晴朗、紫外線強';
+                weatherData.value.icon = 'fa-solid fa-sun text-amber-500';
+              } else if ([1, 2, 3].includes(code)) {
+                weatherData.value.desc = '多雲晴朗、適合出遊';
+                weatherData.value.icon = 'fa-solid fa-cloud-sun text-amber-400';
+              } else if ([45, 48].includes(code)) {
+                weatherData.value.desc = '有霧、行車散步請注意';
+                weatherData.value.icon = 'fa-solid fa-smog text-slate-400';
+              } else if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) {
+                weatherData.value.desc = '局部陣雨、出門記得帶傘';
+                weatherData.value.icon = 'fa-solid fa-cloud-showers-heavy text-sky-500';
+              } else {
+                weatherData.value.desc = '天氣不穩定、隨身攜帶雨具';
+                weatherData.value.icon = 'fa-solid fa-cloud text-slate-500';
+              }
+            }
+          } catch (error) {
+            console.error('線上天氣即時更新失敗，改用預設安全數值：', error);
+            weatherData.value.desc = '盛夏晴朗、紫外線強';
+            weatherData.value.pop = '10%';
+          }
+        };
+
+        // 折扣券邏輯
         const openCoupons = () => { currentCouponIdx.value = 0; showCouponModal.value = true; };
         const closeCoupons = () => { showCouponModal.value = false; };
         const nextCoupon = () => { if (currentCouponIdx.value < coupons.value.length - 1) currentCouponIdx.value++; };
         const prevCoupon = () => { if (currentCouponIdx.value > 0) currentCouponIdx.value--; };
         
-        // 滑動偵測邏輯
-        const handleTouchStart = (e) => {
-          touchStartX.value = e.changedTouches[0].screenX;
-        };
+        const handleTouchStart = (e) => { touchStartX.value = e.changedTouches[0].screenX; };
         const handleTouchEnd = (e) => {
           const touchEndX = e.changedTouches[0].screenX;
           const diff = touchStartX.value - touchEndX;
@@ -742,9 +810,7 @@
         };
 
         const currentDayItinerary = computed(() => { return itineraries.value.filter(item => item.dayIdx === selectedDayIdx.value); });
-        
         const getRainySpots = (region) => { return rainySpots.value.filter(s => s.region === region); };
-        
         const openRainyDetail = (spot) => { selectedRainySpot.value = spot; showRainyDetailModal.value = true; };
         const closeRainyDetail = () => { showRainyDetailModal.value = false; selectedRainySpot.value = null; };
 
@@ -763,8 +829,8 @@
         const totalPrivateExpensesTwd = computed(() => { return privateExpenses.value.reduce((sum, item) => sum + Number(item.amountTwd || 0), 0); });
         const getPayerTotalTwd = (payerName) => { return expenses.value.filter(e => e.payer === payerName).reduce((sum, item) => sum + Number(item.amountTwd || 0), 0); };
 
-        const calcToTwd = () => { fxCalc.value.twd = Math.round(fxCalc.value.jpy * 0.215); };
-        const calcToJpy = () => { fxCalc.value.jpy = Math.round(fxCalc.value.twd / 0.215); };
+        const calcToTwd = () => { fxCalc.value.twd = Math.round(fxCalc.value.jpy * fxRateGlobal.value); };
+        const calcToJpy = () => { fxCalc.value.jpy = Math.round(fxCalc.value.twd / fxRateGlobal.value); };
 
         const getAmPm = (hours) => { if (!hours) return '全天'; const hr = parseInt(hours.split('-')[0].trim().split(':')[0]); return hr >= 12 ? '下午' : '上午'; };
         const getStartTimeOnly = (hours) => { return hours ? hours.split('-')[0].trim() : '--:--'; };
@@ -891,7 +957,6 @@
           const temp = itineraries.value[globalIdx1]; itineraries.value[globalIdx1] = itineraries.value[globalIdx2]; itineraries.value[globalIdx2] = temp;
         };
 
-        const deleteItineraryItem = () => { itineraries.value = itineraries.value.filter(i => i.id !== editingId.value); showModal.value = false; };
         const deleteShoppingItem = (id) => { shoppingList.value = shoppingList.value.filter(s => s.id !== id); };
         const deleteExpense = (id) => { expenses.value = expenses.value.filter(e => e.id !== id); };
         const deletePrivateExpense = (id) => { privateExpenses.value = privateExpenses.value.filter(p => p.id !== id); };
@@ -901,13 +966,18 @@
           }
         };
 
-        onMounted(() => { loadSavedData(); });
+        // 🌟 初始化生命週期連線獲取即時資料
+        onMounted(() => { 
+          loadSavedData(); 
+          fetchRealTimeExchangeRate();
+          fetchRealTimeWeather();
+        });
 
         return {
           activeTab, expenseSubTab, selectedDayIdx, days, currentDayItinerary, shoppingList, expenses, privateExpenses, totalExpensesTwd, totalPrivateExpensesTwd, rainySpots, getRainySpots, getCurrentLocationStyle, getBorderColorClass, 
           showRainyDetailModal, selectedRainySpot, openRainyDetail, closeRainyDetail, triggerEditRainyFromDetail, triggerDeleteRainyFromDetail,
           showModal, showExpenseConfirm, modalTitle, modalTarget, form, isEditing, confirmDelete, fxCalc, fxRateGlobal, payersList, quickExpense, quickPrivateExpense, confirmExpenseData,
-          showCouponModal, currentCouponIdx, coupons, openCoupons, closeCoupons, nextCoupon, prevCoupon, handleTouchStart, handleTouchEnd,
+          showCouponModal, currentCouponIdx, coupons, openCoupons, closeCoupons, nextCoupon, prevCoupon, handleTouchStart, handleTouchEnd, weatherData,
           calcToTwd, calcToJpy, openAddModal, openEditModal, openEditExpenseModal, handleImageUpload, submitForm, previewQuickExpense, confirmAddExpense, getPayerTotalTwd,
           moveItem, deleteModalItem, deleteShoppingItem, deleteExpense, deletePrivateExpense, deleteRainySpot,
           getCategoryColor, getCategoryIcon, getCategoryBadgeClass, getTransitIcon, getAmPm, getStartTimeOnly, getDurationText, getCategoryTextColor
