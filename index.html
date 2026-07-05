@@ -109,7 +109,6 @@
                 <div class="flex-1 pr-3">
                   <h3 class="font-bold text-slate-800 text-[16px] leading-snug mb-1">{{ item.name }}</h3>
                   
-                  <!-- 🌟 支援行程顯示圖片 (如: image-2) -->
                   <div v-if="item.img" class="my-2 rounded-xl overflow-hidden shadow-sm border border-slate-100 relative h-28">
                     <img :src="item.img" class="w-full h-full object-cover">
                   </div>
@@ -119,11 +118,9 @@
                   </div>
                   <div class="space-y-1.5">
                     <p v-if="item.ticket" class="text-[11px] text-orange-500 font-medium"><i class="fa-solid fa-ticket mr-1"></i>{{ item.ticket }}</p>
-                    <!-- 🌟 支援 whitespace-pre-line，讓公車時刻表能換行 -->
                     <div v-if="item.notes" class="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border-l-2 border-[#00b4d8] leading-relaxed whitespace-pre-line"><i class="fa-regular fa-lightbulb mr-1 text-[#00b4d8]"></i>{{ item.notes }}</div>
                   </div>
                 </div>
-                <!-- 🌟 支援自訂地圖網址導航 (item.mapUrl) 與自訂搜尋名稱 (item.location) -->
                 <a :href="item.mapUrl || 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(item.location || item.name)" target="_blank" class="w-8 h-8 flex-shrink-0 rounded-full bg-sky-50 flex items-center justify-center text-[#0077b6] hover:bg-[#00b4d8] hover:text-white transition-colors mt-0.5">
                   <i class="fa-solid fa-diamond-turn-right text-[12px]"></i>
                 </a>
@@ -633,7 +630,7 @@
           { id: 'r19', region: '南區', category: '美食', name: '泊港漁市場', en: 'Tomari Iyumachi', icon: 'fa-solid fa-fish-fins', color: 'bg-blue-600', mapX: 45, mapY: 35, desc: '位於那霸港附近的專業批發兼零售漁市場。直屬於沖繩縣漁業合作社，主打當天捕撈、新鮮直送的各類海鮮。最著名的是現場可以買到非常便宜且新鮮的鮪魚刺身、握壽司、海膽、大生蠔，以及各式烤海鮮熟食。', adv: '全室內市場設計，上方有完整的遮棚與隔絕，地面雖有些許水氣但完全不用撐傘，可以舒適地在各個攤位間穿梭大啖海鮮。', ticket: '免費入場 (消費另計)', notes: '主要是「外帶」或在攤位旁「現吃（部分有少量立吞區）」，非代客料理餐廳模式。清晨 6 點即開門，建議排在早午餐前往，傍晚許多攤位會陸續收攤！' }
         ];
 
-        // ⭐ 這裡整合了最新的第1天到第3天行程，並加入了圖片支援與公車排版
+        // ⭐ 這裡整合了最新的第1天到第5天的所有修改！
         const itinerarySeed = [
           // Day 1
           { id: 'd1-1', dayIdx: 0, category: '航班', name: '抵達沖繩 (那霸機場)', hours: '12:30', flightNum: 'IT288', notes: '在售票機購買單軌電車一日券。', transitType: '大眾運輸', transitTime: 30 },
@@ -669,27 +666,29 @@
           { id: 'd3-9', dayIdx: 2, category: '美食', name: '南島製菓', hours: '15:20', notes: '創立90年，在地人從小吃到大的老字號，販賣傳統沖繩糕點(非伴手禮)', transitType: '大眾運輸', transitTime: 25 },
           { id: 'd3-10', dayIdx: 2, category: '美食', name: '魚屋直營食堂 魚まる', hours: '18:30', notes: '激推海鮮丼！', transitType: '大眾運輸', transitTime: 0 },
 
-          // Day 4 & Day 5
-          { id: 'd4-1', dayIdx: 3, category: '交通', name: '購買單軌電車 48小時通票', hours: '08:00', notes: '★今天不退房。', transitType: '大眾運輸', transitTime: 15 },
+          // Day 4
+          { id: 'd4-1', dayIdx: 3, category: '交通', name: '購買單軌電車 48小時通票', hours: '08:00', notes: '搭乘單軌列車歌町站-旭橋站 (車程８分鐘)，之後步行約 15 分鐘到達波上宮', transitType: '大眾運輸', transitTime: 20 },
           { id: 'd4-2', dayIdx: 3, category: '景點', name: '波上宮 & 波之上海灘', hours: '08:30 - 10:30', notes: '參拜神社、海水浴場。', transitType: '步行', transitTime: 25 },
-          { id: 'd4-3', dayIdx: 3, category: '景點', name: '奧武山公園溜滑梯', hours: '11:00 - 12:00', notes: '免費暢玩巨型滾輪溜滑梯！', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd4-4', dayIdx: 3, category: '購物', name: '通堂拉麵 & AEON免稅店', hours: '12:02 - 17:00', notes: '推薦男味拉麵', transitType: '大眾運輸', transitTime: 20 },
-          { id: 'd5-1', dayIdx: 4, category: '住宿', name: '飯店退房與寄存行李', hours: '09:00', notes: '將行李免費寄放櫃檯。', transitType: '大眾運輸', transitTime: 38 },
-          { id: 'd5-2', dayIdx: 4, category: '景點', name: '首里城公園', hours: '09:38 - 11:20', notes: '定位「沖繩縣立藝術大學」免爬坡。', transitType: '大眾運輸', transitTime: 20 },
-          { id: 'd5-3', dayIdx: 4, category: '購物', name: '榮町市場 & 24hr大超市', hours: '11:40 - 12:30', notes: '安里站西口。買石垣牛排。', transitType: '大眾運輸', transitTime: 10 },
-          { id: 'd5-4', dayIdx: 4, category: '景點', name: '白天版國際通 & 屋台村', hours: '12:40 - 14:30', notes: '伴手禮最後補貨', transitType: '大眾運輸', transitTime: 15 },
-          { id: 'd5-5', dayIdx: 4, category: '交通', name: '返回新都心取回行李', hours: '14:30 - 15:00', notes: '憑單據領回行李。', transitType: '大眾運輸', transitTime: 30 },
-          { id: 'd5-6', dayIdx: 4, category: '景點', name: '壺川站唯美河岸漫步', hours: '15:37', notes: '車站有大型置物櫃。', transitType: '大眾運輸', transitTime: 30 },
-          { id: 'd5-7', dayIdx: 4, category: '航班', name: '抵達那霸機場搭機返台', hours: '18:11', flightNum: 'IT289', notes: '搭機返台！', transitType: '步行', transitTime: 0 }
+          { id: 'd4-3', dayIdx: 3, category: '景點', name: '奧武山公園溜滑梯', hours: '11:00 - 12:00', notes: '波上宮步行15分鐘回旭橋站，搭乘單軌列車從旭橋站(6)到奧武山公園站(4)，到站後往「北口」沿著棒球場步行６分鐘。', transitType: '大眾運輸', transitTime: 15 },
+          { id: 'd4-4', dayIdx: 3, category: '購物', name: '通堂拉麵 & AEON免稅店', hours: '12:02 - 17:00', notes: '搭單軌列車至小祿站(3)\n通堂拉麵要先登記候位，推薦「男味拉麵」。\n男味拉麵：豚骨湯頭，日本細拉麵，配料叉燒肉、豆芽、木耳、溏心蛋。\n女味拉麵：雞湯細扁麵(偏油)，配料：叉燒肉、碎洋蔥、木耳、溏心蛋。桌邊有醃蒜頭可加。', transitType: '大眾運輸', transitTime: 20 },
+
+          // Day 5
+          { id: 'd5-1', dayIdx: 4, category: '住宿', name: '飯店退房與寄存行李', hours: '09:00', notes: '退房時間 10:00 前。\n搭乘單軌列車從歌町站(11)到首里站(15)，出站後往「南口方向」Google沖繩縣立藝術大學會走比較少路！(約走12分鐘)\n首里城售票部分如果持單軌列車一日券有優惠', transitType: '大眾運輸', transitTime: 38 },
+          { id: 'd5-2', dayIdx: 4, category: '景點', name: '首里城公園', hours: '09:38 - 11:20', notes: '定位「沖繩縣立藝術大學」免爬坡。', transitType: '步行', transitTime: 2 },
+          { id: 'd5-2b', dayIdx: 4, category: '景點', name: '達摩寺', hours: '11:25 - 12:00', notes: '從首里城步行２分鐘\n寺內佈滿大大小小的可愛達摩，還有迷你千本鳥居、金臥佛與「緣切不動明王」，是祈求良緣、財運與斬惡緣的熱門景點', transitType: '大眾運輸', transitTime: 10 },
+          { id: 'd5-3', dayIdx: 4, category: '購物', name: '榮町市場＆24小時RYUBO Food Market', hours: '12:15 - 13:30', notes: '搭乘單軌電車首里站(15)-安里站(10)，出站後東口方向到達榮町市場(傳統舊市場)', transitType: '大眾運輸', transitTime: 10 },
+          { id: 'd5-4', dayIdx: 4, category: '景點', name: '白天版國際通 & 屋台村', hours: '13:40 - 15:30', notes: '伴手禮最後補貨\n搭乘單軌電車安里站(10)-牧志站(9)\n\n★也可到「琉貿百貨」(沖繩唯一的百貨公司, 共10層)逛逛吹冷氣，搭單軌電車到縣廳前站(7)即可。', transitType: '大眾運輸', transitTime: 15 },
+          { id: 'd5-5', dayIdx: 4, category: '交通', name: '返回新都心取回行李', hours: '17:30', notes: '搭乘單軌電車牧志站(9)/縣廳前站(7)-歌町站(11)\n拿完行李後，搭乘單軌電車歌町站(11)-那霸空港(1) 車程約 25 分鐘', transitType: '大眾運輸', transitTime: 30 },
+          { id: 'd5-7', dayIdx: 4, category: '航班', name: '抵達那霸機場搭機返台', hours: '18:00', flightNum: 'IT289', notes: '搭機返台！飛機起飛時間21:40', transitType: '步行', transitTime: 0 }
         ];
 
-        // 🌟 記憶體代號更新為 v17，保證載入新行程
+        // 🌟 記憶體代號更新為 v18，保證載入新行程
         const loadSavedData = () => {
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v17');
-          const savedShopping = localStorage.getItem('ok_shopping_v17');
-          const savedExpenses = localStorage.getItem('ok_expenses_v17');
-          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v17'); 
-          const savedRainy = localStorage.getItem('ok_rainy_v17');
+          const savedItinerary = localStorage.getItem('ok_itinerary_final_v18');
+          const savedShopping = localStorage.getItem('ok_shopping_v18');
+          const savedExpenses = localStorage.getItem('ok_expenses_v18');
+          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v18'); 
+          const savedRainy = localStorage.getItem('ok_rainy_v18');
 
           if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
@@ -699,11 +698,11 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_final_v17', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v17', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v17', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v17', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_v17', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_final_v18', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v18', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v18', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v18', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_v18', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
         // ⭐ 折扣券邏輯控制
