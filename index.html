@@ -145,6 +145,13 @@
 
       <!-- 資訊 Tab -->
       <div v-if="activeTab === 'info'" class="space-y-4">
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-train text-indigo-500 mr-2"></i>單軌電車路線圖</h3>
+          <div class="rounded-xl overflow-hidden border border-slate-100 bg-slate-50 relative flex items-center justify-center">
+            <img src="image-3.jpg" alt="單軌電車路線圖" class="w-full h-auto object-contain">
+          </div>
+        </div>
         
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
           <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-cloud-showers-water text-blue-500 mr-2 text-lg"></i>雨天＆避暑室內景點</h3>
@@ -241,6 +248,18 @@
             <a href="https://www.google.com/maps/dir/?api=1&destination=Toyoko+INN+Naha+Shintoshin+Omoromachi" target="_blank" class="mt-3 inline-flex items-center text-xs text-[#0077b6] font-medium bg-sky-50 px-3 py-1.5 rounded-lg hover:bg-sky-100"><i class="fa-solid fa-map-location-dot mr-1"></i>直接導航至飯店</a>
           </div>
         </div>
+
+        <!-- ⭐ 新增的計程車車費試算卡片 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <h3 class="font-bold text-slate-800 mb-2 flex items-center"><i class="fa-solid fa-taxi text-yellow-500 mr-2"></i>計程車車費試算</h3>
+          <div class="p-1">
+            <p class="text-xs text-slate-500 mt-1 mb-3">輸入起迄點即可快速預估日本當地的計程車車資。</p>
+            <a href="https://japantravel.navitime.com/zh-tw/area/jp/taxi/" target="_blank" class="w-full flex items-center justify-center text-[13px] text-yellow-700 font-bold bg-yellow-50 border border-yellow-200 py-2.5 rounded-xl hover:bg-yellow-100 transition-colors shadow-sm">
+              <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i>前往 Navitime 試算
+            </a>
+          </div>
+        </div>
+
       </div>
 
       <!-- 購物 Tab -->
@@ -682,13 +701,13 @@
           { id: 'd5-7', dayIdx: 4, category: '航班', name: '抵達那霸機場搭機返台', hours: '18:00', flightNum: 'IT289', notes: '搭機返台！飛機起飛時間21:40', transitType: '步行', transitTime: 0 }
         ];
 
-        // 🌟 記憶體代號更新為 v18，保證載入新行程
+        // 🌟 記憶體代號更新為 v20，保證載入新行程
         const loadSavedData = () => {
-          const savedItinerary = localStorage.getItem('ok_itinerary_final_v18');
-          const savedShopping = localStorage.getItem('ok_shopping_v18');
-          const savedExpenses = localStorage.getItem('ok_expenses_v18');
-          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v18'); 
-          const savedRainy = localStorage.getItem('ok_rainy_v18');
+          const savedItinerary = localStorage.getItem('ok_itinerary_final_v20');
+          const savedShopping = localStorage.getItem('ok_shopping_v20');
+          const savedExpenses = localStorage.getItem('ok_expenses_v20');
+          const savedPrivateExpenses = localStorage.getItem('ok_private_expenses_v20'); 
+          const savedRainy = localStorage.getItem('ok_rainy_v20');
 
           if (savedItinerary) itineraries.value = JSON.parse(savedItinerary); else itineraries.value = itinerarySeed;
           if (savedShopping) shoppingList.value = JSON.parse(savedShopping);
@@ -698,11 +717,11 @@
         };
 
         watch([itineraries, shoppingList, expenses, privateExpenses, rainySpots], () => {
-          localStorage.setItem('ok_itinerary_final_v18', JSON.stringify(itineraries.value));
-          localStorage.setItem('ok_shopping_v18', JSON.stringify(shoppingList.value));
-          localStorage.setItem('ok_expenses_v18', JSON.stringify(expenses.value));
-          localStorage.setItem('ok_private_expenses_v18', JSON.stringify(privateExpenses.value)); 
-          localStorage.setItem('ok_rainy_v18', JSON.stringify(rainySpots.value));
+          localStorage.setItem('ok_itinerary_final_v20', JSON.stringify(itineraries.value));
+          localStorage.setItem('ok_shopping_v20', JSON.stringify(shoppingList.value));
+          localStorage.setItem('ok_expenses_v20', JSON.stringify(expenses.value));
+          localStorage.setItem('ok_private_expenses_v20', JSON.stringify(privateExpenses.value)); 
+          localStorage.setItem('ok_rainy_v20', JSON.stringify(rainySpots.value));
         }, { deep: true });
 
         // ⭐ 折扣券邏輯控制
